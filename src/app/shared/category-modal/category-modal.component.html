@@ -1,45 +1,69 @@
 <div class="modal-backdrop" (click)="closeModal()"></div>
 
-<div class="modal-dialog modal-dialog-centered modal-lg">
+<div class="modal-dialog">
   <div class="modal-content">
     <div class="modal-header">
-      <h5 class="modal-title">Cócteles de categoría: {{ category }}</h5>
+      <h5 class="modal-title">{{ category }}</h5>
       <button type="button" class="btn-close" (click)="closeModal()"></button>
     </div>
+
     <div class="modal-body">
       <!-- Mensajes de estado -->
       @if (loading) {
-      <div class="d-flex justify-content-center my-4">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Cargando...</span>
-        </div>
+      <div class="loader-container">
+        <div class="loader"></div>
+        <p class="loader-text">Cargando cócteles...</p>
       </div>
       }
 
       @if (error) {
-      <div class="alert alert-danger">
-        {{ error }}
+      <div class="error-message">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <p>{{ error }}</p>
       </div>
       }
 
       <!-- Grid de cócteles -->
       @if (cocktails.length > 0 && !loading) {
-      <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4">
+      <div class="cocktail-grid">
         @for (cocktail of cocktails; track cocktail.idDrink) {
-        <div class="col">
-          <div class="card h-100">
-            <img [src]="cocktail.strDrinkThumb" [alt]="cocktail.strDrink" class="card-img-top">
+        <div class="cocktail-item">
+          <div class="card">
+            <div class="card-image-container">
+              <img [src]="cocktail.strDrinkThumb" [alt]="cocktail.strDrink" class="card-img-top">
+            </div>
             <div class="card-body">
               <h5 class="card-title">{{ cocktail.strDrink }}</h5>
-              <a [routerLink]="['/cocktail', cocktail.idDrink]" class="btn btn-primary btn-sm"
-                (click)="closeModal()">Ver Detalles</a>
+              <a [routerLink]="['/cocktail', cocktail.idDrink]" class="btn btn-primary" (click)="closeModal()">
+                Ver Detalles
+              </a>
             </div>
           </div>
         </div>
         }
       </div>
       }
+
+      @if (cocktails.length === 0 && !loading && !error) {
+      <div class="empty-state">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 22h8"></path>
+          <path d="M12 11v11"></path>
+          <path d="M7 11a5 5 0 0 1-5-5c0-2.8 2.2-5 5-5h10a5 5 0 0 1 5 5c0 2.8-2.2 5-5 5"></path>
+          <path d="M12 11c3.866 0 7-3.134 7-7H5c0 3.866 3.134 7 7 7Z"></path>
+        </svg>
+        <h3>No hay cócteles disponibles</h3>
+        <p>No se encontraron cócteles para esta categoría.</p>
+      </div>
+      }
     </div>
+
     <div class="modal-footer">
       <button type="button" class="btn btn-secondary" (click)="closeModal()">Cerrar</button>
     </div>
