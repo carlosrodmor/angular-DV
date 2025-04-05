@@ -1,121 +1,156 @@
-<div class="row mb-4">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h2 class="mb-0">Explorador de Cócteles</h2>
+<div class="home-container">
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2>Explorador de Cócteles</h2>
+            <div class="actions">
+                <button class="btn btn-sm btn-outline-primary" (click)="search()" title="Refrescar">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                        <path d="M3 3v5h5"></path>
+                    </svg>
+                </button>
             </div>
-            <div class="card-body">
-                <!-- Filtros -->
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <div class="input-group">
-                            <input type="text" class="form-control" placeholder="Buscar cócteles..."
-                                [(ngModel)]="searchTerm" (keyup.enter)="search()">
-                            <div class="input-group-append">
-                                <button class="btn btn-outline-primary" type="button" (click)="search()">
-                                    Buscar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <select class="form-select" [(ngModel)]="selectedCategoryFilter"
-                            (change)="filterByCategory(selectedCategoryFilter)">
-                            <option value="">Filtrar por categoría</option>
-                            @for (category of categories; track category) {
-                            <option [value]="category">{{ category }}</option>
-                            }
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Filtros por letra -->
-                <div class="mb-4">
-                    <div class="btn-group flex-wrap" role="group">
-                        @for (letter of letters; track letter) {
-                        <button type="button" class="btn" [class.btn-primary]="filterLetter === letter"
-                            [class.btn-outline-primary]="filterLetter !== letter" (click)="filterByLetter(letter)">
-                            {{ letter.toUpperCase() }}
+        </div>
+        <div class="card-body">
+            <!-- Filtros y búsqueda -->
+            <div class="search-filters">
+                <div class="search-box">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Buscar cócteles..."
+                            [(ngModel)]="searchTerm" (keyup.enter)="search()">
+                        <button class="btn btn-primary" type="button" (click)="search()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path d="m21 21-4.3-4.3"></path>
+                            </svg>
                         </button>
+                    </div>
+                </div>
+                <div class="category-filter">
+                    <select class="form-select" [(ngModel)]="selectedCategoryFilter"
+                        (change)="filterByCategory(selectedCategoryFilter)">
+                        <option value="">Todas las categorías</option>
+                        @for (category of categories; track category) {
+                        <option [value]="category">{{ category }}</option>
                         }
-                    </div>
+                    </select>
                 </div>
+            </div>
 
-                <!-- Mensajes de estado -->
-                @if (loading) {
-                <div class="d-flex justify-content-center my-4">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Cargando...</span>
-                    </div>
-                </div>
+            <!-- Filtros por letra -->
+            <div class="letter-filters">
+                @for (letter of letters; track letter) {
+                <button type="button" class="btn btn-sm" [class.btn-primary]="filterLetter === letter"
+                    [class.btn-outline-primary]="filterLetter !== letter" (click)="filterByLetter(letter)">
+                    {{ letter.toUpperCase() }}
+                </button>
                 }
+            </div>
 
-                @if (error) {
-                <div class="alert alert-danger">
-                    {{ error }}
-                </div>
-                }
+            <!-- Estados de carga y error -->
+            @if (loading) {
+            <div class="loader">
+                <div class="spinner"></div>
+                <span>Cargando cócteles...</span>
+            </div>
+            }
 
-                <!-- Tabla de resultados -->
-                @if (cocktails.length > 0 && !loading) {
+            @if (error) {
+            <div class="alert alert-danger">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon me-2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                {{ error }}
+            </div>
+            }
+
+            <!-- Resultados -->
+            @if (cocktails.length > 0 && !loading) {
+            <div class="search-results">
                 <div class="table-responsive">
-                    <table class="table table-bordered table-hover">
+                    <table class="table">
                         <thead>
-                            <tr class="table-primary">
+                            <tr>
                                 <th>ID</th>
                                 <th>Imagen</th>
                                 <th>Nombre</th>
                                 <th>Categoría</th>
                                 <th>Tipo</th>
                                 <th>Ingredientes</th>
-                                <th>Fecha modificación</th>
+                                <th>Modificado</th>
                             </tr>
                         </thead>
                         <tbody>
                             @for (cocktail of cocktails; track cocktail.idDrink) {
                             <tr>
                                 <td>
-                                    <a [routerLink]="['/cocktail', cocktail.idDrink]" class="text-decoration-none">
+                                    <a [routerLink]="['/cocktail', cocktail.idDrink]" class="badge bg-light text-dark">
                                         {{ cocktail.idDrink }}
                                     </a>
                                 </td>
                                 <td>
                                     <img [src]="cocktail.strDrinkThumb" [alt]="cocktail.strDrink" class="table-image" />
                                 </td>
-                                <td>{{ cocktail.strDrink }}</td>
+                                <td>
+                                    <a [routerLink]="['/cocktail', cocktail.idDrink]" class="cocktail-name">
+                                        {{ cocktail.strDrink }}
+                                    </a>
+                                </td>
                                 <td>
                                     <span class="clickable" (click)="showCategory(cocktail.strCategory)">
                                         {{ cocktail.strCategory }}
                                     </span>
                                 </td>
-                                <td>{{ cocktail.strAlcoholic }}</td>
                                 <td>
-                                    <span class="clickable" (click)="showIngredients(cocktail)">
-                                        {{ countIngredients(cocktail) }} ingredientes
+                                    <span class="badge" [class.bg-accent]="cocktail.strAlcoholic === 'Alcoholic'"
+                                        [class.bg-success]="cocktail.strAlcoholic === 'Non alcoholic'">
+                                        {{ cocktail.strAlcoholic }}
                                     </span>
                                 </td>
-                                <td>{{ cocktail.dateModified ? (cocktail.dateModified | date:'dd/MM/yyyy') : 'N/A' }}
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" (click)="showIngredients(cocktail)">
+                                        {{ countIngredients(cocktail) }} ingredientes
+                                    </button>
                                 </td>
+                                <td>{{ cocktail.dateModified ? (cocktail.dateModified | date:'dd/MM/yyyy') : 'N/A' }}</td>
                             </tr>
                             }
                         </tbody>
                     </table>
                 </div>
 
-                <!-- Resumen de tipos de cócteles -->
-                <div class="alert alert-info">
-                    <p class="mb-0">Total: {{ cocktails.length }} cócteles
-                        ({{ alcoholicCount }} alcohólicos, {{ nonAlcoholicCount }} no alcohólicos,
-                        {{ cocktails.length - alcoholicCount - nonAlcoholicCount }} otros)</p>
+                <!-- Estadísticas -->
+                <div class="stats-bar">
+                    <div class="stats-item">
+                        <span class="stats-label">Total:</span>
+                        <span class="stats-value">{{ cocktails.length }}</span>
+                    </div>
+                    <div class="stats-item">
+                        <span class="stats-label">Alcohólicos:</span>
+                        <span class="stats-value">{{ alcoholicCount }}</span>
+                    </div>
+                    <div class="stats-item">
+                        <span class="stats-label">No alcohólicos:</span>
+                        <span class="stats-value">{{ nonAlcoholicCount }}</span>
+                    </div>
                 </div>
-                }
-
-                @if (cocktails.length === 0 && !loading && !error) {
-                <div class="alert alert-warning">
-                    No se encontraron cócteles. Intenta con otros filtros.
-                </div>
-                }
             </div>
+            }
+
+            @if (cocktails.length === 0 && !loading && !error) {
+            <div class="empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                    <path d="M8 22h8"></path>
+                    <path d="M12 11v11"></path>
+                    <path d="M7 11a5 5 0 0 1-5-5c0-2.8 2.2-5 5-5h10a5 5 0 0 1 5 5c0 2.8-2.2 5-5 5"></path>
+                    <path d="M12 11c3.866 0 7-3.134 7-7H5c0 3.866 3.134 7 7 7Z"></path>
+                </svg>
+                <h3>No se encontraron cócteles</h3>
+                <p>Intenta con otros filtros o realiza una nueva búsqueda.</p>
+            </div>
+            }
         </div>
     </div>
 </div>

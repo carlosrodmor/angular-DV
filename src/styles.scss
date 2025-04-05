@@ -1,31 +1,632 @@
 /* You can add global styles to this file, and also import other style files */
 @import "bootstrap/dist/css/bootstrap.min.css";
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+
+:root {
+  --primary-color: #6366f1;
+  --primary-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  --secondary-color: #4f46e5;
+  --accent-color: #818cf8;
+  --accent-gradient: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
+  --text-color: #334155;
+  --text-muted: #64748b;
+  --light-bg: #f8fafc;
+  --dark-bg: #1e293b;
+  --success-color: #10b981;
+  --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --warning-color: #f59e0b;
+  --warning-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  --border-radius: 0.5rem;
+  --border-radius-xl: 1rem;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -4px rgba(0, 0, 0, 0.1);
+}
+
+/* Animaciones globales */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
 
 body {
   min-height: 100vh;
   margin: 0;
-  background-color: #f8f9fa;
+  background-color: var(--light-bg);
+  color: var(--text-color);
+  font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, sans-serif;
+  line-height: 1.6;
+  background-image: radial-gradient(
+      circle at 100% 0%,
+      rgba(99, 102, 241, 0.08) 0%,
+      transparent 20%
+    ),
+    radial-gradient(
+      circle at 0% 100%,
+      rgba(99, 102, 241, 0.08) 0%,
+      transparent 20%
+    );
+  background-attachment: fixed;
+  background-size: 100% 100%;
 }
 
-.table-image {
+::selection {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+/* Layout */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.container,
+.container-fluid {
+  max-width: 1200px;
+  padding: 0 1.5rem;
+  width: 100%;
+  margin: 0 auto;
+}
+
+main {
+  flex: 1;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+/* Scrollbar personalizado */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent-color);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color);
+}
+
+/* Navegación */
+.navbar {
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+}
+
+.navbar .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  text-decoration: none;
+  position: relative;
+  padding: 0.5rem;
+}
+
+.navbar-brand::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--primary-gradient);
+  transition: width 0.3s ease;
+  border-radius: 2px;
+}
+
+.navbar-brand:hover {
+  color: var(--secondary-color);
+}
+
+.navbar-brand:hover::after {
+  width: 100%;
+}
+
+.navbar .icon {
+  stroke: var(--primary-color);
+  transition: transform 0.3s ease;
+}
+
+.navbar-brand:hover .icon {
+  transform: rotate(-10deg);
+}
+
+/* Footer */
+.footer {
+  background-color: white;
+  padding: 2rem 0;
+  margin-top: 2rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.footer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: var(--primary-gradient);
+}
+
+.footer .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.footer p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.social-links {
+  display: flex;
+  gap: 1.2rem;
+}
+
+.social-links a {
+  color: var(--text-muted);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba(99, 102, 241, 0.05);
+}
+
+.social-links a:hover {
+  color: var(--primary-color);
+  background-color: rgba(99, 102, 241, 0.1);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow);
+}
+
+.icon {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Botones */
+.btn {
+  border-radius: var(--border-radius);
+  padding: 0.5rem 1.25rem;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: -100%;
+  background-image: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: all 0.5s ease;
+}
+
+.btn:hover::after {
+  left: 100%;
+}
+
+.btn-primary {
+  background-image: var(--primary-gradient);
+  color: white;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+.btn-primary:hover {
+  background-image: var(--primary-gradient);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-outline-primary {
+  border: 2px solid var(--primary-color);
+  color: var(--primary-color);
+  background-color: transparent;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary-color);
+  color: white;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn-accent {
+  background-image: var(--accent-gradient);
+  color: white;
+  box-shadow: 0 4px 15px rgba(129, 140, 248, 0.3);
+}
+
+.btn-accent:hover {
+  background-image: var(--accent-gradient);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(129, 140, 248, 0.4);
+}
+
+.btn:focus {
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+}
+
+.btn-sm {
+  padding: 0.35rem 0.8rem;
+  font-size: 0.875rem;
+}
+
+/* Tarjetas */
+.card {
+  border: none;
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.card-header {
+  background-color: white;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 1.5rem 1.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+.card-header::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
   width: 50px;
-  height: 50px;
+  height: 3px;
+  background: var(--primary-gradient);
+  border-radius: 0 2px 0 0;
+}
+
+.card-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-color);
+  position: relative;
+  display: inline-block;
+}
+
+.card-body {
+  padding: 1.75rem;
+}
+
+/* Imágenes */
+.table-image {
+  width: 55px;
+  height: 55px;
   object-fit: cover;
-  border-radius: 4px;
+  border-radius: 50%;
+  border: 3px solid white;
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+}
+
+.table-image:hover {
+  transform: scale(1.15);
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.3);
 }
 
 .modal-image {
-  width: 80px;
-  height: 80px;
+  width: 90px;
+  height: 90px;
   object-fit: cover;
-  border-radius: 4px;
+  border-radius: 12px;
+  border: 3px solid white;
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
 }
 
+.modal-image:hover {
+  transform: scale(1.05);
+}
+
+/* Elementos clickables */
 .clickable {
   cursor: pointer;
+  color: var(--primary-color);
+  font-weight: 500;
+  position: relative;
+  display: inline-block;
+  padding: 0 2px;
+}
+
+.clickable::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--primary-gradient);
+  transition: width 0.3s ease;
 }
 
 .clickable:hover {
-  color: #007bff;
-  text-decoration: underline;
+  color: var(--secondary-color);
+}
+
+.clickable:hover::after {
+  width: 100%;
+}
+
+/* Tablas */
+.table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+}
+
+.table th,
+.table td {
+  padding: 1.2rem 1rem;
+  border: none;
+  vertical-align: middle;
+}
+
+.table thead th {
+  background-color: rgba(99, 102, 241, 0.03);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  color: var(--text-color);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+.table thead th::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(to right, var(--primary-color), transparent);
+}
+
+.table tbody tr {
+  transition: all 0.3s ease;
+}
+
+.table tbody tr:hover {
+  background-color: rgba(99, 102, 241, 0.05);
+  transform: scale(1.01);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  z-index: 1;
+  position: relative;
+}
+
+.table tbody td {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.table-responsive {
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+/* Inputs y selects */
+.form-control,
+.form-select {
+  border-radius: var(--border-radius);
+  padding: 0.8rem 1.2rem;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  transition: all 0.3s ease;
+  background-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  font-size: 0.95rem;
+}
+
+.form-control:hover,
+.form-select:hover {
+  border-color: var(--accent-color);
+  background-color: white;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+  background-color: white;
+}
+
+.input-group {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border-radius: var(--border-radius);
+  transition: box-shadow 0.3s ease;
+}
+
+.input-group:hover {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.input-group .form-control {
+  border-right: none;
+  box-shadow: none;
+}
+
+.input-group .btn {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/* Alertas */
+.alert {
+  border-radius: var(--border-radius);
+  border: none;
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.alert::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+}
+
+.alert-primary {
+  background-color: rgba(99, 102, 241, 0.1);
+  color: var(--primary-color);
+}
+
+.alert-primary::before {
+  background-color: var(--primary-color);
+}
+
+.alert-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.alert-danger::before {
+  background-color: #ef4444;
+}
+
+.alert-warning {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: var(--warning-color);
+}
+
+.alert-warning::before {
+  background-color: var(--warning-color);
+}
+
+.alert-info {
+  background-color: rgba(6, 182, 212, 0.1);
+  color: #06b6d4;
+}
+
+.alert-info::before {
+  background-color: #06b6d4;
+}
+
+.alert-success {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--success-color);
+}
+
+.alert-success::before {
+  background-color: var(--success-color);
+}
+
+/* Badges */
+.badge {
+  font-weight: 500;
+  padding: 0.35em 0.75em;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+}
+
+.badge:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.bg-accent {
+  background-image: var(--accent-gradient);
+}
+
+.bg-success {
+  background-image: var(--success-gradient);
+}
+
+/* Efectos de hover y focus */
+a,
+button,
+input,
+select {
+  transition: all 0.3s ease;
 }
