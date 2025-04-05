@@ -138,15 +138,22 @@ export class HomeComponent implements OnInit {
           this.cocktails = [];
           this.alcoholicCount = 0;
           this.nonAlcoholicCount = 0;
+          this.error = `No se encontraron cócteles que comiencen con la letra "${letter}"`;
         }
       },
       (error) => {
         this.loading = false;
-        this.error = 'Error al cargar los cócteles';
-        console.error(error);
         this.cocktails = [];
         this.alcoholicCount = 0;
         this.nonAlcoholicCount = 0;
+
+        if (error instanceof Error) {
+          this.error = error.message;
+        } else {
+          this.error = 'Error al cargar los cócteles';
+        }
+
+        console.error('Error al filtrar por letra:', error);
       }
     );
   }
@@ -161,65 +168,92 @@ export class HomeComponent implements OnInit {
       relativeTo: this.route,
       queryParams: { category: category },
       queryParamsHandling: 'merge',
-      replaceUrl: true,
+      replaceUrl: true
     });
 
     this.cocktailService.filterByCategory(category).subscribe(
       (response: CocktailsResponse) => {
         this.loading = false;
         if (response && response.drinks) {
+          // Limitar a 12 cócteles máximo para evitar demasiadas peticiones
+          const cocktailsToFetch = response.drinks.slice(0, 12);
+
           // Para cada cóctel obtenido por categoría, necesitamos obtener detalles completos
-          const requests = response.drinks.map((drink) =>
-            this.cocktailService.getById(drink.idDrink)
-          );
-
-          // Realizar todas las solicitudes en paralelo
-          const cocktailDetails: Cocktail[] = [];
-          let completedRequests = 0;
-
-          requests.forEach((request) => {
-            request.subscribe(
-              (detailResponse: any) => {
-                if (
-                  detailResponse &&
-                  detailResponse.drinks &&
-                  detailResponse.drinks.length > 0
-                ) {
-                  cocktailDetails.push(detailResponse.drinks[0]);
-                }
-                completedRequests++;
-
-                if (completedRequests === requests.length) {
-                  this.cocktails = cocktailDetails;
-                  this.updateAlcoholicCount();
-                }
-              },
-              (error) => {
-                completedRequests++;
-                console.error('Error fetching cocktail details', error);
-
-                if (completedRequests === requests.length) {
-                  this.cocktails = cocktailDetails;
-                  this.updateAlcoholicCount();
-                }
-              }
-            );
-          });
+          // pero limitamos a 3 peticiones simultáneas para evitar límites de tasa
+          this.fetchCocktailDetails(cocktailsToFetch);
         } else {
           this.cocktails = [];
           this.alcoholicCount = 0;
           this.nonAlcoholicCount = 0;
+          this.error = `No se encontraron cócteles en la categoría "${category}"`;
         }
       },
-      (error) => {
+      error => {
         this.loading = false;
-        this.error = 'Error al filtrar por categoría';
-        console.error(error);
         this.cocktails = [];
         this.alcoholicCount = 0;
         this.nonAlcoholicCount = 0;
+
+        if (error instanceof Error) {
+          this.error = error.message;
+        } else {
+          this.error = 'Error al filtrar por categoría';
+        }
+
+        console.error('Error al filtrar por categoría:', error);
       }
     );
+  }
+
+  // Método para obtener detalles de cócteles por lotes para evitar límites de tasa
+  fetchCocktailDetails(drinks: any[]): void {
+    // Procesar por lotes de 3 cócteles a la vez
+    const batchSize = 3;
+    const totalBatches = Math.ceil(drinks.length / batchSize);
+    const cocktailDetails: Cocktail[] = [];
+
+    // Función para procesar un lote
+    const processBatch = (batchIndex: number) => {
+      if (batchIndex >= totalBatches) {
+        // Todos los lotes procesados
+        this.cocktails = cocktailDetails;
+        this.updateAlcoholicCount();
+        return;
+      }
+
+      const start = batchIndex * batchSize;
+      const end = Math.min(start + batchSize, drinks.length);
+      const currentBatch = drinks.slice(start, end);
+      let completedInBatch = 0;
+
+      currentBatch.forEach(drink => {
+        this.cocktailService.getById(drink.idDrink).subscribe(
+          (detailResponse: any) => {
+            if (detailResponse && detailResponse.drinks && detailResponse.drinks.length > 0) {
+              cocktailDetails.push(detailResponse.drinks[0]);
+            }
+            completedInBatch++;
+
+            if (completedInBatch === currentBatch.length) {
+              // Este lote está completo, procesar el siguiente
+              setTimeout(() => processBatch(batchIndex + 1), 300); // Pequeño retardo entre lotes
+            }
+          },
+          error => {
+            completedInBatch++;
+            console.error('Error fetching cocktail details', error);
+
+            if (completedInBatch === currentBatch.length) {
+              // Este lote está completo, procesar el siguiente
+              setTimeout(() => processBatch(batchIndex + 1), 300);
+            }
+          }
+        );
+      });
+    };
+
+    // Iniciar procesamiento con el primer lote
+    processBatch(0);
   }
 
   search(): void {
