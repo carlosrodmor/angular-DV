@@ -1,0 +1,112 @@
+<div class="container">
+    <div class="row mb-3">
+        <div class="col-12">
+            <button (click)="goBack()" class="btn btn-outline-secondary">
+                ← Volver a la lista
+            </button>
+            <button (click)="loadRandomCocktail()" class="btn btn-warning ms-2">
+                Cóctel Aleatorio
+            </button>
+        </div>
+    </div>
+
+    <!-- Mensajes de estado -->
+    @if (loading) {
+    <div class="d-flex justify-content-center my-4">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+    }
+
+    @if (error) {
+    <div class="alert alert-danger">
+        {{ error }}
+    </div>
+    }
+
+    <!-- Detalles del cóctel -->
+    @if (cocktail && !loading) {
+    <div class="card mb-4">
+        <div class="row g-0">
+            <div class="col-md-4">
+                <img [src]="cocktail.strDrinkThumb" [alt]="cocktail.strDrink" class="img-fluid rounded-start">
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h2 class="card-title">{{ cocktail.strDrink }}</h2>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>ID:</strong> {{ cocktail.idDrink }}</p>
+                            <p><strong>Categoría:</strong> {{ cocktail.strCategory }}</p>
+                            <p><strong>Tipo:</strong> {{ cocktail.strAlcoholic }}</p>
+                            <p><strong>Vaso:</strong> {{ cocktail.strGlass }}</p>
+                            <p>
+                                <strong>Ingredientes:</strong>
+                                <span class="clickable text-primary" (click)="showIngredients()">
+                                    Ver {{ ingredients.length }} ingredientes
+                                </span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            @if (cocktail.strTags) {
+                            <p><strong>Etiquetas:</strong> {{ cocktail.strTags }}</p>
+                            }
+                            @if (cocktail.strIBA) {
+                            <p><strong>IBA:</strong> {{ cocktail.strIBA }}</p>
+                            }
+                            @if (cocktail.dateModified) {
+                            <p><strong>Última modificación:</strong> {{ cocktail.dateModified | date:'dd/MM/yyyy' }}</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instrucciones -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0 h5">Instrucciones</h3>
+        </div>
+        <div class="card-body">
+            <p>{{ cocktail.strInstructions }}</p>
+            @if (cocktail.strInstructionsES) {
+            <hr>
+            <h4 class="h6">Instrucciones en Español</h4>
+            <p>{{ cocktail.strInstructionsES }}</p>
+            }
+        </div>
+    </div>
+
+    <!-- Ingredientes -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0 h5">Ingredientes</h3>
+        </div>
+        <div class="card-body">
+            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4">
+                @for (ingredient of ingredients; track ingredient.name) {
+                <div class="col">
+                    <div class="card h-100 text-center">
+                        <img [src]="ingredient.imageUrl" [alt]="ingredient.name" class="card-img-top p-2">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ ingredient.name }}</h5>
+                            <p class="card-text">{{ ingredient.measure || 'Al gusto' }}</p>
+                        </div>
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+    }
+</div>
+
+<!-- Modal de Ingredientes -->
+@if (showIngredientsModal) {
+<app-ingredients-modal [cocktailName]="cocktail?.strDrink || ''" [ingredients]="ingredients"
+    (close)="closeIngredientsModal()">
+</app-ingredients-modal>
+}

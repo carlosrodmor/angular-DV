@@ -1,0 +1,37 @@
+<div class="modal-backdrop" (click)="closeModal()"></div>
+
+<div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Ingredientes de {{ cocktailName }}</h5>
+            <button type="button" class="btn-close" (click)="closeModal()"></button>
+        </div>
+        <div class="modal-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Imagen</th>
+                            <th>Ingrediente</th>
+                            <th>Medida</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (ingredient of ingredients; track ingredient.name) {
+                        <tr>
+                            <td>
+                                <img [src]="ingredient.imageUrl" [alt]="ingredient.name" class="modal-image">
+                            </td>
+                            <td>{{ ingredient.name }}</td>
+                            <td>{{ ingredient.measure || 'Al gusto' }}</td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeModal()">Cerrar</button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,134 @@
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0">Explorador de Cócteles</h2>
+            </div>
+            <div class="card-body">
+                <!-- Filtros -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Buscar cócteles..."
+                                [(ngModel)]="searchTerm" (keyup.enter)="search()">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-primary" type="button" (click)="search()">
+                                    Buscar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <select class="form-select" [(ngModel)]="selectedCategoryFilter"
+                            (change)="filterByCategory(selectedCategoryFilter)">
+                            <option value="">Filtrar por categoría</option>
+                            @for (category of categories; track category) {
+                            <option [value]="category">{{ category }}</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Filtros por letra -->
+                <div class="mb-4">
+                    <div class="btn-group flex-wrap" role="group">
+                        @for (letter of letters; track letter) {
+                        <button type="button" class="btn" [class.btn-primary]="filterLetter === letter"
+                            [class.btn-outline-primary]="filterLetter !== letter" (click)="filterByLetter(letter)">
+                            {{ letter.toUpperCase() }}
+                        </button>
+                        }
+                    </div>
+                </div>
+
+                <!-- Mensajes de estado -->
+                @if (loading) {
+                <div class="d-flex justify-content-center my-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                </div>
+                }
+
+                @if (error) {
+                <div class="alert alert-danger">
+                    {{ error }}
+                </div>
+                }
+
+                <!-- Tabla de resultados -->
+                @if (cocktails.length > 0 && !loading) {
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead>
+                            <tr class="table-primary">
+                                <th>ID</th>
+                                <th>Imagen</th>
+                                <th>Nombre</th>
+                                <th>Categoría</th>
+                                <th>Tipo</th>
+                                <th>Ingredientes</th>
+                                <th>Fecha modificación</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (cocktail of cocktails; track cocktail.idDrink) {
+                            <tr>
+                                <td>
+                                    <a [routerLink]="['/cocktail', cocktail.idDrink]" class="text-decoration-none">
+                                        {{ cocktail.idDrink }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <img [src]="cocktail.strDrinkThumb" [alt]="cocktail.strDrink" class="table-image" />
+                                </td>
+                                <td>{{ cocktail.strDrink }}</td>
+                                <td>
+                                    <span class="clickable" (click)="showCategory(cocktail.strCategory)">
+                                        {{ cocktail.strCategory }}
+                                    </span>
+                                </td>
+                                <td>{{ cocktail.strAlcoholic }}</td>
+                                <td>
+                                    <span class="clickable" (click)="showIngredients(cocktail)">
+                                        {{ countIngredients(cocktail) }} ingredientes
+                                    </span>
+                                </td>
+                                <td>{{ cocktail.dateModified ? (cocktail.dateModified | date:'dd/MM/yyyy') : 'N/A' }}
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Resumen de tipos de cócteles -->
+                <div class="alert alert-info">
+                    <p class="mb-0">Total: {{ cocktails.length }} cócteles
+                        ({{ alcoholicCount }} alcohólicos, {{ nonAlcoholicCount }} no alcohólicos,
+                        {{ cocktails.length - alcoholicCount - nonAlcoholicCount }} otros)</p>
+                </div>
+                }
+
+                @if (cocktails.length === 0 && !loading && !error) {
+                <div class="alert alert-warning">
+                    No se encontraron cócteles. Intenta con otros filtros.
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Ingredientes -->
+@if (showIngredientsModal) {
+<app-ingredients-modal [cocktailName]="selectedCocktailIngredients.name"
+    [ingredients]="selectedCocktailIngredients.ingredients" (close)="closeIngredientsModal()">
+</app-ingredients-modal>
+}
+
+<!-- Modal de Categoría -->
+@if (showCategoryModal) {
+<app-category-modal [category]="selectedCategory" (close)="closeCategoryModal()">
+</app-category-modal>
+}

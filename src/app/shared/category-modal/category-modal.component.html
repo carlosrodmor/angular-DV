@@ -1,0 +1,47 @@
+<div class="modal-backdrop" (click)="closeModal()"></div>
+
+<div class="modal-dialog modal-dialog-centered modal-lg">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title">Cócteles de categoría: {{ category }}</h5>
+      <button type="button" class="btn-close" (click)="closeModal()"></button>
+    </div>
+    <div class="modal-body">
+      <!-- Mensajes de estado -->
+      @if (loading) {
+      <div class="d-flex justify-content-center my-4">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+      }
+
+      @if (error) {
+      <div class="alert alert-danger">
+        {{ error }}
+      </div>
+      }
+
+      <!-- Grid de cócteles -->
+      @if (cocktails.length > 0 && !loading) {
+      <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4">
+        @for (cocktail of cocktails; track cocktail.idDrink) {
+        <div class="col">
+          <div class="card h-100">
+            <img [src]="cocktail.strDrinkThumb" [alt]="cocktail.strDrink" class="card-img-top">
+            <div class="card-body">
+              <h5 class="card-title">{{ cocktail.strDrink }}</h5>
+              <a [routerLink]="['/cocktail', cocktail.idDrink]" class="btn btn-primary btn-sm"
+                (click)="closeModal()">Ver Detalles</a>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+      }
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="closeModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
