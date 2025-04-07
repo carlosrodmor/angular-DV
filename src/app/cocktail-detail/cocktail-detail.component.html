@@ -1,11 +1,11 @@
-<div class="container">
+<div class="container mt-4">
     <div class="row mb-3">
         <div class="col-12">
-            <button (click)="goBack()" class="btn btn-outline-secondary">
-                ← Volver a la lista
+            <button (click)="goBack()" class="btn btn-outline-secondary btn-sm rounded-pill">
+                <i class="bi bi-arrow-left"></i> Volver
             </button>
-            <button (click)="loadRandomCocktail()" class="btn btn-warning ms-2">
-                Cóctel Aleatorio
+            <button (click)="loadRandomCocktail()" class="btn btn-outline-warning btn-sm rounded-pill ms-2">
+                <i class="bi bi-shuffle"></i> Aleatorio
             </button>
         </div>
     </div>
@@ -27,36 +27,58 @@
 
     <!-- Detalles del cóctel -->
     @if (cocktail && !loading) {
-    <div class="card mb-4">
+    <div class="card mb-4 border-0 shadow-sm">
         <div class="row g-0">
             <div class="col-md-4">
-                <img [src]="cocktail.strDrinkThumb" [alt]="cocktail.strDrink" class="img-fluid rounded-start">
+                <img [src]="cocktail.strDrinkThumb" [alt]="cocktail.strDrink"
+                    class="img-fluid rounded-start cocktail-img">
             </div>
             <div class="col-md-8">
                 <div class="card-body">
-                    <h2 class="card-title">{{ cocktail.strDrink }}</h2>
-                    <div class="row">
+                    <h2 class="card-title fw-bold">{{ cocktail.strDrink }}</h2>
+                    <div class="row mt-3">
                         <div class="col-md-6">
-                            <p><strong>ID:</strong> {{ cocktail.idDrink }}</p>
-                            <p><strong>Categoría:</strong> {{ cocktail.strCategory }}</p>
-                            <p><strong>Tipo:</strong> {{ cocktail.strAlcoholic }}</p>
-                            <p><strong>Vaso:</strong> {{ cocktail.strGlass }}</p>
+                            <p class="text-muted small mb-1">ID: {{ cocktail.idDrink }}</p>
                             <p>
-                                <strong>Ingredientes:</strong>
-                                <span class="clickable text-primary" (click)="showIngredients()">
-                                    Ver {{ ingredients.length }} ingredientes
+                                <span class="badge bg-light text-dark me-1">Categoría:</span>
+                                <span class="badge bg-primary text-white category-badge" (click)="loadCategoryDrinks()">
+                                    {{ cocktail.strCategory }}
+                                </span>
+                            </p>
+                            <p>
+                                <span class="badge bg-light text-dark me-1">Tipo:</span>
+                                <span class="badge bg-secondary">{{ cocktail.strAlcoholic }}</span>
+                            </p>
+                            <p>
+                                <span class="badge bg-light text-dark me-1">Vaso:</span>
+                                <span class="badge bg-secondary">{{ cocktail.strGlass }}</span>
+                            </p>
+                            <p>
+                                <span class="badge bg-light text-dark me-1">Ingredientes:</span>
+                                <span class="badge bg-info text-white clickable" (click)="showIngredients()">
+                                    <i class="bi bi-eye"></i> {{ ingredients.length }} ingredientes
                                 </span>
                             </p>
                         </div>
                         <div class="col-md-6">
                             @if (cocktail.strTags) {
-                            <p><strong>Etiquetas:</strong> {{ cocktail.strTags }}</p>
+                            <p>
+                                <span class="badge bg-light text-dark me-1">Etiquetas:</span>
+                                @for (tag of cocktail.strTags.split(','); track $index) {
+                                <span class="badge bg-secondary me-1">{{ tag.trim() }}</span>
+                                }
+                            </p>
                             }
                             @if (cocktail.strIBA) {
-                            <p><strong>IBA:</strong> {{ cocktail.strIBA }}</p>
+                            <p>
+                                <span class="badge bg-light text-dark me-1">IBA:</span>
+                                <span class="badge bg-secondary">{{ cocktail.strIBA }}</span>
+                            </p>
                             }
                             @if (cocktail.dateModified) {
-                            <p><strong>Última modificación:</strong> {{ cocktail.dateModified | date:'dd/MM/yyyy' }}</p>
+                            <p class="text-muted small">
+                                Última modificación: {{ cocktail.dateModified | date:'dd/MM/yyyy' }}
+                            </p>
                             }
                         </div>
                     </div>
@@ -65,35 +87,39 @@
         </div>
     </div>
 
-    <!-- Instrucciones -->
-    <div class="card mb-4">
-        <div class="card-header bg-primary text-white">
+    <!-- Instrucciones con selector de idioma -->
+    <div class="card mb-4 border-0 shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
             <h3 class="mb-0 h5">Instrucciones</h3>
+            <div class="language-selector">
+                @for (lang of availableLanguages; track lang.code) {
+                <button class="btn" [class.btn-primary]="currentLanguage === lang.code"
+                    [class.btn-light]="currentLanguage !== lang.code" (click)="changeLanguage(lang.code)"
+                    title="{{ lang.name }}">
+                    {{ lang.flag }}
+                </button>
+                }
+            </div>
         </div>
         <div class="card-body">
-            <p>{{ cocktail.strInstructions }}</p>
-            @if (cocktail.strInstructionsES) {
-            <hr>
-            <h4 class="h6">Instrucciones en Español</h4>
-            <p>{{ cocktail.strInstructionsES }}</p>
-            }
+            <p class="mb-0">{{ getInstructions() }}</p>
         </div>
     </div>
 
     <!-- Ingredientes -->
-    <div class="card mb-4">
-        <div class="card-header bg-primary text-white">
+    <div class="card mb-4 border-0 shadow-sm">
+        <div class="card-header bg-white">
             <h3 class="mb-0 h5">Ingredientes</h3>
         </div>
         <div class="card-body">
             <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4">
                 @for (ingredient of ingredients; track ingredient.name) {
                 <div class="col">
-                    <div class="card h-100 text-center">
+                    <div class="card h-100 text-center border-0 shadow-sm">
                         <img [src]="ingredient.imageUrl" [alt]="ingredient.name" class="card-img-top p-2">
                         <div class="card-body">
-                            <h5 class="card-title">{{ ingredient.name }}</h5>
-                            <p class="card-text">{{ ingredient.measure || 'Al gusto' }}</p>
+                            <h5 class="card-title h6">{{ ingredient.name }}</h5>
+                            <p class="card-text small">{{ ingredient.measure || 'Al gusto' }}</p>
                         </div>
                     </div>
                 </div>
@@ -109,4 +135,49 @@
 <app-ingredients-modal [cocktailName]="cocktail?.strDrink || ''" [ingredients]="ingredients"
     (close)="closeIngredientsModal()">
 </app-ingredients-modal>
+}
+
+<!-- Slider de Categoría -->
+@if (showCategorySlider && categoryCocktails.length > 0) {
+<div class="category-slider-overlay">
+    <div class="category-slider-container">
+        <div class="slider-header">
+            <h3>Cócteles de {{ cocktail?.strCategory }}</h3>
+            <button class="btn-close" (click)="closeCategorySlider()"></button>
+        </div>
+
+        <div class="slider-content">
+            <button class="slider-nav prev" (click)="prevSlide()">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+
+            <div class="slider-main">
+                <div class="cocktail-slide" (click)="openCocktailDetails(categoryCocktails[currentSlideIndex].idDrink)">
+                    <img [src]="categoryCocktails[currentSlideIndex].strDrinkThumb"
+                        [alt]="categoryCocktails[currentSlideIndex].strDrink" class="slide-image">
+                    <div class="slide-caption">
+                        {{ categoryCocktails[currentSlideIndex].strDrink }}
+                    </div>
+                </div>
+            </div>
+
+            <button class="slider-nav next" (click)="nextSlide()">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+
+        <div class="slider-counter">
+            {{ currentSlideIndex + 1 }} / {{ categoryCocktails.length }}
+        </div>
+    </div>
+</div>
+}
+
+<!-- Indicador de Carga para la Categoría -->
+@if (loadingCategory) {
+<div class="category-loader-overlay">
+    <div class="spinner-border text-light" role="status">
+        <span class="visually-hidden">Cargando cócteles de categoría...</span>
+    </div>
+</div>
 }
