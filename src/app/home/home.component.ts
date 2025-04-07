@@ -163,24 +163,39 @@ export class HomeComponent implements OnInit {
     this.error = '';
     this.selectedCategoryFilter = category;
 
+    // Si se selecciona "Todas las categorías", volver a cargar por letra
+    if (!category) {
+      this.filterByLetter(this.filterLetter);
+      return;
+    }
+
     // Actualizar la URL sin recargar la página
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { category: category },
       queryParamsHandling: 'merge',
-      replaceUrl: true
+      replaceUrl: true,
     });
 
     this.cocktailService.filterByCategory(category).subscribe(
       (response: CocktailsResponse) => {
         this.loading = false;
         if (response && response.drinks) {
-          // Limitar a 12 cócteles máximo para evitar demasiadas peticiones
-          const cocktailsToFetch = response.drinks.slice(0, 12);
+          // Limitamos a 10 cócteles para evitar muchas peticiones
+          const cocktailsToFetch = response.drinks.slice(0, 10);
+          this.cocktails = cocktailsToFetch;
 
-          // Para cada cóctel obtenido por categoría, necesitamos obtener detalles completos
-          // pero limitamos a 3 peticiones simultáneas para evitar límites de tasa
-          this.fetchCocktailDetails(cocktailsToFetch);
+          // Pre-poblamos datos esenciales para mejorar la experiencia de usuario
+          this.cocktails.forEach((cocktail) => {
+            // Aseguramos que todos los cócteles tengan su categoría correcta
+            cocktail.strCategory = category;
+            // Preseleccionar valores por defecto para evitar errores visuales
+            if (!cocktail.strAlcoholic) {
+              cocktail.strAlcoholic = 'Alcoholic'; // Valor por defecto
+            }
+          });
+
+          this.updateAlcoholicCount();
         } else {
           this.cocktails = [];
           this.alcoholicCount = 0;
@@ -188,7 +203,7 @@ export class HomeComponent implements OnInit {
           this.error = `No se encontraron cócteles en la categoría "${category}"`;
         }
       },
-      error => {
+      (error) => {
         this.loading = false;
         this.cocktails = [];
         this.alcoholicCount = 0;
@@ -203,57 +218,6 @@ export class HomeComponent implements OnInit {
         console.error('Error al filtrar por categoría:', error);
       }
     );
-  }
-
-  // Método para obtener detalles de cócteles por lotes para evitar límites de tasa
-  fetchCocktailDetails(drinks: any[]): void {
-    // Procesar por lotes de 3 cócteles a la vez
-    const batchSize = 3;
-    const totalBatches = Math.ceil(drinks.length / batchSize);
-    const cocktailDetails: Cocktail[] = [];
-
-    // Función para procesar un lote
-    const processBatch = (batchIndex: number) => {
-      if (batchIndex >= totalBatches) {
-        // Todos los lotes procesados
-        this.cocktails = cocktailDetails;
-        this.updateAlcoholicCount();
-        return;
-      }
-
-      const start = batchIndex * batchSize;
-      const end = Math.min(start + batchSize, drinks.length);
-      const currentBatch = drinks.slice(start, end);
-      let completedInBatch = 0;
-
-      currentBatch.forEach(drink => {
-        this.cocktailService.getById(drink.idDrink).subscribe(
-          (detailResponse: any) => {
-            if (detailResponse && detailResponse.drinks && detailResponse.drinks.length > 0) {
-              cocktailDetails.push(detailResponse.drinks[0]);
-            }
-            completedInBatch++;
-
-            if (completedInBatch === currentBatch.length) {
-              // Este lote está completo, procesar el siguiente
-              setTimeout(() => processBatch(batchIndex + 1), 300); // Pequeño retardo entre lotes
-            }
-          },
-          error => {
-            completedInBatch++;
-            console.error('Error fetching cocktail details', error);
-
-            if (completedInBatch === currentBatch.length) {
-              // Este lote está completo, procesar el siguiente
-              setTimeout(() => processBatch(batchIndex + 1), 300);
-            }
-          }
-        );
-      });
-    };
-
-    // Iniciar procesamiento con el primer lote
-    processBatch(0);
   }
 
   search(): void {
@@ -297,9 +261,47 @@ export class HomeComponent implements OnInit {
       (c) =>
         c.strAlcoholic === 'Non alcoholic' || c.strAlcoholic === 'Non Alcoholic'
     ).length;
+
+    // Si no hay datos de tipo alcohólico, estimar basado en categoría
+    if (
+      this.alcoholicCount === 0 &&
+      this.nonAlcoholicCount === 0 &&
+      this.cocktails.length > 0
+    ) {
+      // Categorías que típicamente son no alcohólicas
+      const nonAlcoholicCategories = [
+        'Soft Drink / Soda',
+        'Coffee / Tea',
+        'Cocoa',
+        'Milk / Float / Shake',
+      ];
+
+      // Estimar basado en categoría
+      this.cocktails.forEach((cocktail) => {
+        if (
+          cocktail.strCategory &&
+          nonAlcoholicCategories.includes(cocktail.strCategory)
+        ) {
+          this.nonAlcoholicCount++;
+          // Actualizar el cóctel para visualización correcta
+          cocktail.strAlcoholic = 'Non Alcoholic';
+        } else {
+          this.alcoholicCount++;
+          // Actualizar el cóctel para visualización correcta
+          cocktail.strAlcoholic = 'Alcoholic';
+        }
+      });
+    }
   }
 
   countIngredients(cocktail: Cocktail): number {
+    // Verificar si tenemos información de ingredientes
+    if (cocktail.strIngredient1 === undefined) {
+      // Si no tenemos información, devolver un valor predeterminado
+      // Que sugiera que hay que hacer clic para ver los detalles
+      return 0;
+    }
+
     let count = 0;
     for (let i = 1; i <= 15; i++) {
       const ingredient = cocktail[`strIngredient${i}` as keyof Cocktail];
@@ -313,6 +315,35 @@ export class HomeComponent implements OnInit {
   }
 
   showIngredients(cocktail: Cocktail): void {
+    // Verificar si tenemos la información de ingredientes
+    const hasIngredientInfo = cocktail.strIngredient1 !== undefined;
+
+    if (!hasIngredientInfo) {
+      // Si no tenemos información de ingredientes, cargar los detalles completos
+      this.loading = true;
+      this.cocktailService.getById(cocktail.idDrink).subscribe(
+        (response: any) => {
+          this.loading = false;
+          if (response && response.drinks && response.drinks.length > 0) {
+            const detailedCocktail = response.drinks[0];
+            this.displayIngredients(detailedCocktail);
+          } else {
+            this.error = 'No se pudieron cargar los detalles del cóctel';
+          }
+        },
+        (error) => {
+          this.loading = false;
+          this.error = 'Error al cargar los detalles del cóctel';
+          console.error(error);
+        }
+      );
+    } else {
+      // Si ya tenemos la información, mostrar los ingredientes directamente
+      this.displayIngredients(cocktail);
+    }
+  }
+
+  displayIngredients(cocktail: Cocktail): void {
     this.selectedCocktailIngredients = {
       name: cocktail.strDrink,
       ingredients: [],
@@ -343,6 +374,11 @@ export class HomeComponent implements OnInit {
   }
 
   showCategory(category: string): void {
+    if (!category) {
+      this.error = 'Categoría no disponible';
+      return;
+    }
+
     this.selectedCategory = category;
     this.showCategoryModal = true;
   }
