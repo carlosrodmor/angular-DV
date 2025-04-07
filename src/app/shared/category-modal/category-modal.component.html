@@ -21,7 +21,7 @@
 
       @if (error) {
       <div class="error-message">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10"></circle>
           <line x1="12" y1="8" x2="12" y2="12"></line>
@@ -47,7 +47,7 @@
             <div class="card-body">
               <h5 class="card-title" [title]="cocktail.strDrink">{{ cocktail.strDrink }}</h5>
               <a [routerLink]="['/cocktail', cocktail.idDrink]" class="btn btn-primary" (click)="closeModal()">
-                Ver Detalles
+                Ver
               </a>
             </div>
           </div>
@@ -58,7 +58,7 @@
 
       @if (cocktails.length === 0 && !loading && !error) {
       <div class="empty-state">
-        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
           <path d="M8 22h8"></path>
           <path d="M12 11v11"></path>
