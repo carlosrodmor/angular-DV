@@ -1,6 +1,6 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Cocktail } from '../../models/cocktail';
+import { Cocktail } from '../../../models/cocktail';
 
 interface Language {
   code: string;

@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Cocktail } from '../../models/cocktail';
+import { Cocktail } from '../../../models/cocktail';
 
 @Component({
   selector: 'app-category-slider',
