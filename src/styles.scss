@@ -417,6 +417,46 @@ main {
   color: var(--secondary-color);
 }
 
+/* Estilo para categorías */
+.category-link {
+  cursor: pointer;
+  color: var(--primary-color);
+  font-weight: 500;
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  background-color: rgba(99, 102, 241, 0.08);
+  transition: all 0.3s ease;
+  position: relative;
+  text-decoration: none !important;
+}
+
+.category-link::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-image: var(
+    --primary-gradient,
+    linear-gradient(45deg, #6366f1, #8b5cf6)
+  );
+  transition: width 0.3s ease;
+}
+
+.category-link:hover {
+  color: var(--secondary-color);
+  background-color: rgba(99, 102, 241, 0.15);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(99, 102, 241, 0.2);
+  text-decoration: none !important;
+}
+
+.category-link:hover::after {
+  width: 100%;
+}
+
 /* Tablas */
 .table {
   border-collapse: separate;
@@ -614,4 +654,9 @@ button,
 input,
 select {
   transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: none;
 }

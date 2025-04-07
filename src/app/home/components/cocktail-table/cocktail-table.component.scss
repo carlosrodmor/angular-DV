@@ -57,7 +57,6 @@
 .clickable {
   cursor: pointer;
   color: var(--primary-color, #6366f1);
-  text-decoration: underline;
   transition: all 0.2s ease;
   position: relative;
 }
@@ -108,4 +107,13 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Estilos adicionales para la categoría */
+.category-link {
+  text-decoration: none !important;
+}
+
+.category-link:hover {
+  text-decoration: none !important;
 }
