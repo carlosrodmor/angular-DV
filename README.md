@@ -1,59 +1,107 @@
-# MiAppAngular
+# Mi App Angular de Cócteles
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.1.2.
+Este proyecto fue generado con [Angular CLI](https://github.com/angular/angular-cli) versión 19.1.2.
 
-## Development server
+## Requisitos Previos
 
-To start a local development server, run:
+Antes de comenzar, asegúrate de tener instalado:
+
+- [Node.js](https://nodejs.org/) (v18.18.0 o superior)
+- [npm](https://www.npmjs.com/) (viene con Node.js)
+
+## Instalación
+
+Sigue estos pasos para instalar y configurar el proyecto:
+
+1. Clona el repositorio:
+
+   ```bash
+   git clone <url-del-repositorio>
+   cd mi-app-angular
+   ```
+
+2. Instala las dependencias:
+   ```bash
+   npm install
+   ```
+
+## Ejecución
+
+### Servidor de desarrollo
+
+Para iniciar el servidor de desarrollo:
+
+```bash
+npm start
+```
+
+O alternativamente:
 
 ```bash
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Una vez que el servidor esté en ejecución, abre tu navegador y navega a `http://localhost:4200/`. La aplicación se recargará automáticamente cada vez que modifiques alguno de los archivos fuente.
 
-## Code scaffolding
+### Construcción para producción
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Para crear una versión de producción:
 
 ```bash
-ng generate --help
+npm run build
 ```
 
-## Building
-
-To build the project run:
+O:
 
 ```bash
 ng build
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Esto compilará el proyecto y almacenará los archivos en el directorio `dist/`. Por defecto, la compilación de producción optimiza tu aplicación para un mejor rendimiento.
 
-## Running unit tests
+### Servidor SSR (Server-Side Rendering)
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
+Para ejecutar la aplicación con renderizado del lado del servidor:
 
 ```bash
-ng e2e
+npm run serve:ssr:mi-app-angular
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## Estructura del Proyecto
 
-## Additional Resources
+```
+src/
+├── app/
+│   ├── components/    # Componentes reutilizables
+│   ├── home/          # Componente principal de la página de inicio
+│   ├── cocktail-detail/ # Componente de detalle de cócteles
+│   ├── services/      # Servicios para la gestión de datos
+│   ├── models/        # Interfaces y modelos de datos
+│   ├── shared/        # Componentes, pipes y directivas compartidas
+│   └── utils/         # Utilidades y funciones auxiliares
+├── assets/            # Imágenes, fuentes y otros recursos estáticos
+└── ...
+```
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## Recursos y Herramientas Utilizadas
+
+### Dependencias Principales
+
+- **Angular**: Framework principal (v19.1.0)
+- **Bootstrap**: Framework CSS para el diseño (v5.3.5)
+- **RxJS**: Biblioteca para programación reactiva
+
+### Dependencias de Desarrollo
+
+- **Angular CLI**: Herramienta de línea de comandos para Angular
+- **TypeScript**: Superset tipado de JavaScript
+
+
+## Implementación en Producción
+
+Para implementar la aplicación en producción:
+
+1. Construye la aplicación con `npm run build`
+2. Los archivos generados en la carpeta `dist/` están listos para ser desplegados en cualquier servidor web estático
+3. Para despliegues con SSR, utiliza `npm run serve:ssr:mi-app-angular` o configura tu propio servidor Node.js
+
