@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CocktailService } from '../services/cocktail.service';
 import { Cocktail, Ingredient } from '../models/cocktail';
 import { IngredientsModalComponent } from '../shared/ingredients-modal/ingredients-modal.component';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-cocktail-detail',
@@ -12,7 +13,7 @@ import { IngredientsModalComponent } from '../shared/ingredients-modal/ingredien
   templateUrl: './cocktail-detail.component.html',
   styleUrl: './cocktail-detail.component.scss',
 })
-export class CocktailDetailComponent implements OnInit {
+export class CocktailDetailComponent implements OnInit, OnDestroy {
   cocktail: Cocktail | null = null;
   loading: boolean = false;
   error: string = '';
@@ -35,42 +36,50 @@ export class CocktailDetailComponent implements OnInit {
   showCategorySlider: boolean = false;
   currentSlideIndex: number = 0;
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private cocktailService: CocktailService
-  ) {}
+  private destroy$ = new Subject<void>();
+
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private cocktailService = inject(CocktailService);
 
   ngOnInit(): void {
-    this.route.params.subscribe((params) => {
+    this.route.params.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       if (params['id']) {
         this.loadCocktail(params['id']);
       }
     });
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   loadCocktail(id: string): void {
     this.loading = true;
     this.error = '';
 
-    this.cocktailService.getById(id).subscribe(
-      (response: any) => {
-        this.loading = false;
-        if (response && response.drinks && response.drinks.length > 0) {
-          this.cocktail = response.drinks[0];
-          this.extractIngredients();
-        } else {
-          this.error = 'No se encontró el cóctel';
+    this.cocktailService
+      .getById(id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: any) => {
+          this.loading = false;
+          if (response && response.drinks && response.drinks.length > 0) {
+            this.cocktail = response.drinks[0];
+            this.extractIngredients();
+          } else {
+            this.error = 'No se encontró el cóctel';
+            this.cocktail = null;
+          }
+        },
+        error: (error) => {
+          this.loading = false;
+          this.error = 'Error al cargar el cóctel';
+          console.error(error);
           this.cocktail = null;
-        }
-      },
-      (error) => {
-        this.loading = false;
-        this.error = 'Error al cargar el cóctel';
-        console.error(error);
-        this.cocktail = null;
-      }
-    );
+        },
+      });
   }
 
   extractIngredients(): void {
@@ -97,18 +106,21 @@ export class CocktailDetailComponent implements OnInit {
   }
 
   loadRandomCocktail(): void {
-    this.cocktailService.getRandom().subscribe(
-      (response: any) => {
-        if (response && response.drinks && response.drinks.length > 0) {
-          const randomCocktail = response.drinks[0];
-          this.router.navigate(['/cocktail', randomCocktail.idDrink]);
-        }
-      },
-      (error) => {
-        this.error = 'Error al cargar el cóctel aleatorio';
-        console.error(error);
-      }
-    );
+    this.cocktailService
+      .getRandom()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: any) => {
+          if (response && response.drinks && response.drinks.length > 0) {
+            const randomCocktail = response.drinks[0];
+            this.router.navigate(['/cocktail', randomCocktail.idDrink]);
+          }
+        },
+        error: (error) => {
+          this.error = 'Error al cargar el cóctel aleatorio';
+          console.error(error);
+        },
+      });
   }
 
   showIngredients(): void {
@@ -149,20 +161,23 @@ export class CocktailDetailComponent implements OnInit {
     if (!this.cocktail || !this.cocktail.strCategory) return;
 
     this.loadingCategory = true;
-    this.cocktailService.filterByCategory(this.cocktail.strCategory).subscribe(
-      (response: any) => {
-        this.loadingCategory = false;
-        if (response && response.drinks && response.drinks.length > 0) {
-          this.categoryCocktails = response.drinks;
-          this.showCategorySlider = true;
-          this.currentSlideIndex = 0;
-        }
-      },
-      (error) => {
-        this.loadingCategory = false;
-        console.error('Error al cargar cócteles de la categoría:', error);
-      }
-    );
+    this.cocktailService
+      .filterByCategory(this.cocktail.strCategory)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: any) => {
+          this.loadingCategory = false;
+          if (response && response.drinks && response.drinks.length > 0) {
+            this.categoryCocktails = response.drinks;
+            this.showCategorySlider = true;
+            this.currentSlideIndex = 0;
+          }
+        },
+        error: (error) => {
+          this.loadingCategory = false;
+          console.error('Error al cargar cócteles de la categoría:', error);
+        },
+      });
   }
 
   nextSlide(): void {
