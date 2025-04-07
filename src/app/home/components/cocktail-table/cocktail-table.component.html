@@ -1,0 +1,86 @@
+<div class="search-results">
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Imagen</th>
+                    <th>Nombre</th>
+                    <th>Categoría</th>
+                    <th>Tipo</th>
+                    <th>Ingredientes</th>
+                    <th>Modificado</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (cocktail of cocktails; track cocktail.idDrink) {
+                <tr>
+                    <td>
+                        <a [routerLink]="['/cocktail', cocktail.idDrink]" class="badge bg-light text-dark">
+                            {{ cocktail.idDrink }}
+                        </a>
+                    </td>
+                    <td>
+                        <img [src]="
+                cocktail.strDrinkThumb ||
+                '/assets/images/cocktail-placeholder.svg'
+              " [alt]="cocktail.strDrink" class="table-image"
+                            onerror="this.src='/assets/images/cocktail-placeholder.svg'" />
+                    </td>
+                    <td>
+                        <a [routerLink]="['/cocktail', cocktail.idDrink]" class="cocktail-name">
+                            {{ cocktail.strDrink || 'Sin nombre' }}
+                        </a>
+                    </td>
+                    <td>
+                        <span class="clickable" (click)="onCategoryClick(cocktail.strCategory)">
+                            {{ cocktail.strCategory || 'Sin categoría' }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge" [class.bg-accent]="cocktail.strAlcoholic === 'Alcoholic'"
+                            [class.bg-success]="
+                cocktail.strAlcoholic === 'Non alcoholic' ||
+                cocktail.strAlcoholic === 'Non Alcoholic'
+              " [class.bg-secondary]="!cocktail.strAlcoholic">
+                            {{ cocktail.strAlcoholic || 'Desconocido' }}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" (click)="onIngredientsClick(cocktail)">
+                            {{
+                            countIngredients(cocktail) > 0
+                            ? countIngredients(cocktail) + ' ingredientes'
+                            : 'Ver ingredientes'
+                            }}
+                        </button>
+                    </td>
+                    <td>
+                        {{
+                        cocktail.dateModified
+                        ? (cocktail.dateModified | date : 'dd/MM/yyyy')
+                        : 'N/A'
+                        }}
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="stats-bar">
+        <div class="stats-item">
+            <span class="stats-label">Total:</span>
+            <span class="stats-value">{{ cocktails.length }}</span>
+        </div>
+        <div class="stats-item">
+            <span class="stats-label">Alcohólicos:</span>
+            <span class="stats-value">{{ alcoholicCount }}</span>
+        </div>
+        <div class="stats-item">
+            <span class="stats-label">No alcohólicos:</span>
+            <span class="stats-value">{{ nonAlcoholicCount }}</span>
+        </div>
+    </div>
+</div>

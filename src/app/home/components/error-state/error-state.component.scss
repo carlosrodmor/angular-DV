@@ -1,0 +1,39 @@
+.alert {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border-radius: var(--border-radius, 0.5rem);
+  border: none;
+  background-color: rgba(244, 63, 94, 0.1);
+  color: #e11d48;
+  margin: 1rem 0;
+  position: relative;
+  overflow: hidden;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.alert::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background-color: #e11d48;
+}
+
+.icon {
+  flex-shrink: 0;
+  margin-right: 0.75rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

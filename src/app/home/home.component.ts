@@ -10,6 +10,17 @@ import { CategoryModalComponent } from '../shared/category-modal/category-modal.
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, takeUntil } from 'rxjs';
 
+// Importación simplificada de componentes
+import {
+  HomeHeaderComponent,
+  SearchFiltersComponent,
+  LetterFiltersComponent,
+  CocktailTableComponent,
+  EmptyStateComponent,
+  LoadingStateComponent,
+  ErrorStateComponent,
+} from './components';
+
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -19,6 +30,13 @@ import { Subject, takeUntil } from 'rxjs';
     RouterModule,
     IngredientsModalComponent,
     CategoryModalComponent,
+    HomeHeaderComponent,
+    SearchFiltersComponent,
+    LetterFiltersComponent,
+    CocktailTableComponent,
+    EmptyStateComponent,
+    LoadingStateComponent,
+    ErrorStateComponent,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
