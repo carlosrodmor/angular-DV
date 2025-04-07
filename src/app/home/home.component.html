@@ -6,7 +6,8 @@
     <div class="card-body">
       <!-- Filtros y búsqueda -->
       <app-search-filters [categories]="categories" [searchTerm]="searchTerm"
-        [selectedCategory]="selectedCategoryFilter" (search)="search()" (categoryChange)="filterByCategory($event)">
+        [selectedCategory]="selectedCategoryFilter" (search)="search()" (categoryChange)="filterByCategory($event)"
+        (refresh)="refreshData()">
       </app-search-filters>
 
       <!-- Filtros por letra -->
