@@ -1,0 +1,52 @@
+<div class="card mb-4 border-0 shadow-sm" *ngIf="cocktail">
+    <div class="row g-0">
+        <div class="col-md-4">
+            <img [src]="cocktail.strDrinkThumb" [alt]="cocktail.strDrink" class="img-fluid rounded-start cocktail-img">
+        </div>
+        <div class="col-md-8">
+            <div class="card-body">
+                <h2 class="card-title fw-bold">{{ cocktail.strDrink }}</h2>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <p class="text-muted small mb-1">ID: {{ cocktail.idDrink }}</p>
+                        <p>
+                            <span class="badge bg-light text-dark me-1">Categoría:</span>
+                            <span class="badge bg-primary text-white category-badge" (click)="onLoadCategory()">
+                                {{ cocktail.strCategory }}
+                            </span>
+                        </p>
+                        <p>
+                            <span class="badge bg-light text-dark me-1">Tipo:</span>
+                            <span class="badge bg-secondary">{{ cocktail.strAlcoholic }}</span>
+                        </p>
+                        <p>
+                            <span class="badge bg-light text-dark me-1">Vaso:</span>
+                            <span class="badge bg-secondary">{{ cocktail.strGlass }}</span>
+                        </p>
+                        <p>
+                            <span class="badge bg-light text-dark me-1">Ingredientes:</span>
+                            <span class="badge bg-info text-white clickable" (click)="onShowIngredients()">
+                                <i class="bi bi-eye"></i> Ver ingredientes
+                            </span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p *ngIf="cocktail.strTags">
+                            <span class="badge bg-light text-dark me-1">Etiquetas:</span>
+                            <ng-container *ngFor="let tag of cocktail.strTags.split(','); let i = index">
+                                <span class="badge bg-secondary me-1">{{ tag.trim() }}</span>
+                            </ng-container>
+                        </p>
+                        <p *ngIf="cocktail.strIBA">
+                            <span class="badge bg-light text-dark me-1">IBA:</span>
+                            <span class="badge bg-secondary">{{ cocktail.strIBA }}</span>
+                        </p>
+                        <p *ngIf="cocktail.dateModified" class="text-muted small">
+                            Última modificación: {{ cocktail.dateModified | date:'dd/MM/yyyy' }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

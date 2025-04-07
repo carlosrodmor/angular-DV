@@ -6,10 +6,30 @@ import { Cocktail, Ingredient } from '../models/cocktail';
 import { IngredientsModalComponent } from '../shared/ingredients-modal/ingredients-modal.component';
 import { Subject, takeUntil } from 'rxjs';
 
+// Importaciones de componentes modulares
+import { CocktailHeaderComponent } from '../components/cocktail-header/cocktail-header.component';
+import { CocktailLoadingComponent } from '../components/cocktail-loading/cocktail-loading.component';
+import { CocktailErrorComponent } from '../components/cocktail-error/cocktail-error.component';
+import { CocktailInfoComponent } from '../components/cocktail-info/cocktail-info.component';
+import { CocktailInstructionsComponent } from '../components/cocktail-instructions/cocktail-instructions.component';
+import { CocktailIngredientsListComponent } from '../components/cocktail-ingredients-list/cocktail-ingredients-list.component';
+import { CategorySliderComponent } from '../components/category-slider/category-slider.component';
+
 @Component({
   selector: 'app-cocktail-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, IngredientsModalComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    IngredientsModalComponent,
+    CocktailHeaderComponent,
+    CocktailLoadingComponent,
+    CocktailErrorComponent,
+    CocktailInfoComponent,
+    CocktailInstructionsComponent,
+    CocktailIngredientsListComponent,
+    CategorySliderComponent,
+  ],
   templateUrl: './cocktail-detail.component.html',
   styleUrl: './cocktail-detail.component.scss',
 })
