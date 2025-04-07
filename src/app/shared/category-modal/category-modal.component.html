@@ -3,8 +3,11 @@
 <div class="modal-dialog">
   <div class="modal-content">
     <div class="modal-header">
-      <h5 class="modal-title">{{ category }}</h5>
-      <button type="button" class="btn-close" (click)="closeModal()"></button>
+      <h5 class="modal-title">
+        <span class="category-icon">🍹</span>
+        {{ category }}
+      </h5>
+      <button type="button" class="btn-close" aria-label="Cerrar" (click)="closeModal()"></button>
     </div>
 
     <div class="modal-body">
@@ -30,15 +33,19 @@
 
       <!-- Grid de cócteles -->
       @if (cocktails.length > 0 && !loading) {
+      <div class="category-header">
+        <span class="results-count">{{ cocktails.length }} cócteles encontrados</span>
+      </div>
       <div class="cocktail-grid">
         @for (cocktail of cocktails; track cocktail.idDrink) {
         <div class="cocktail-item">
           <div class="card">
             <div class="card-image-container">
-              <img [src]="cocktail.strDrinkThumb" [alt]="cocktail.strDrink" class="card-img-top">
+              <img [src]="cocktail.strDrinkThumb" [alt]="cocktail.strDrink" class="card-img-top" loading="lazy">
+              <div class="card-overlay"></div>
             </div>
             <div class="card-body">
-              <h5 class="card-title">{{ cocktail.strDrink }}</h5>
+              <h5 class="card-title" [title]="cocktail.strDrink">{{ cocktail.strDrink }}</h5>
               <a [routerLink]="['/cocktail', cocktail.idDrink]" class="btn btn-primary" (click)="closeModal()">
                 Ver Detalles
               </a>
@@ -58,8 +65,8 @@
           <path d="M7 11a5 5 0 0 1-5-5c0-2.8 2.2-5 5-5h10a5 5 0 0 1 5 5c0 2.8-2.2 5-5 5"></path>
           <path d="M12 11c3.866 0 7-3.134 7-7H5c0 3.866 3.134 7 7 7Z"></path>
         </svg>
-        <h3>No hay cócteles disponibles</h3>
-        <p>No se encontraron cócteles para esta categoría.</p>
+        <h3>No se encontraron cócteles</h3>
+        <p>No hay cócteles disponibles en esta categoría.</p>
       </div>
       }
     </div>

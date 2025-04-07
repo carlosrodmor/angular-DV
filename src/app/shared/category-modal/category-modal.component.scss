@@ -7,8 +7,8 @@
   z-index: 1040;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(6px);
 }
 
 .modal-dialog {
@@ -31,38 +31,54 @@
 
 .modal-content {
   border: none;
-  border-radius: 12px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
   max-width: 900px;
   width: 100%;
   margin: auto;
   overflow: hidden;
   background-color: #fff;
+  transition: transform 0.3s ease;
+  animation: modalFadeIn 0.3s ease;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .modal-header {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   padding: 1.5rem;
   background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .modal-title {
   font-weight: 600;
-  color: #333;
+  color: #222;
   margin: 0;
-  font-size: 1.3rem;
+  font-size: 1.4rem;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+}
+
+.category-icon {
+  margin-right: 0.75rem;
+  font-size: 1.5rem;
 }
 
 .modal-body {
-  padding: 1.5rem;
-}
-
-.modal-footer {
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
-  padding: 1.5rem;
-  background-color: #fafafa;
-  display: flex;
-  justify-content: flex-end;
+  padding: 1.75rem;
 }
 
 .btn-close {
@@ -70,14 +86,19 @@
   border: none;
   cursor: pointer;
   position: relative;
-  width: 30px;
-  height: 30px;
-  opacity: 0.5;
-  transition: opacity 0.2s;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  opacity: 0.6;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-close:hover {
   opacity: 1;
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 .btn-close:before,
@@ -85,24 +106,39 @@
   content: "";
   position: absolute;
   height: 2px;
-  width: 100%;
+  width: 16px;
   top: 50%;
-  left: 0;
+  left: 50%;
   background: #333;
 }
 
 .btn-close:before {
-  transform: rotate(45deg);
+  transform: translate(-50%, -50%) rotate(45deg);
 }
 
 .btn-close:after {
-  transform: rotate(-45deg);
+  transform: translate(-50%, -50%) rotate(-45deg);
 }
 
 .cocktail-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 1.5rem;
+}
+
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.results-count {
+  font-size: 0.95rem;
+  color: #666;
+  font-weight: 500;
 }
 
 .cocktail-item {
@@ -111,16 +147,17 @@
 
 .card {
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
-  transition: transform 0.3s, box-shadow 0.3s;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
   width: 100%;
+  background-color: #fff;
 }
 
 .card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  transform: translateY(-6px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
 }
 
 .card-image-container {
@@ -129,59 +166,52 @@
 }
 
 .card-img-top {
-  height: 180px;
+  height: 190px;
   width: 100%;
   object-fit: cover;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s;
+  transition: transform 0.5s ease;
 }
 
 .card:hover .card-img-top {
-  transform: scale(1.05);
+  transform: scale(1.08);
 }
 
 .card-body {
-  padding: 1rem;
+  padding: 1.25rem 1rem;
 }
 
 .card-title {
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 500;
-  margin-bottom: 0.75rem;
+  margin-bottom: 1rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: #222;
 }
 
 .btn-primary {
   background-color: #5c6bc0;
   border: none;
-  border-radius: 4px;
-  padding: 0.375rem 0.75rem;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
   font-weight: 500;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
   display: block;
   text-align: center;
   width: 100%;
+  color: white;
+  font-size: 0.9rem;
 }
 
 .btn-primary:hover {
-  background-color: #3f51b5;
+  background-color: #4a57a7;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(92, 107, 192, 0.2);
 }
 
-.btn-secondary {
-  background-color: transparent;
-  color: #5c6bc0;
-  border: 1px solid #5c6bc0;
-  border-radius: 4px;
-  padding: 0.5rem 1rem;
-  font-weight: 500;
-  transition: all 0.2s;
-}
-
-.btn-secondary:hover {
-  background-color: #5c6bc0;
-  color: white;
+.btn-primary:active {
+  transform: translateY(0);
 }
 
 // Loader
@@ -190,26 +220,31 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 2rem 0;
+  padding: 3rem 0;
 }
 
 .loader {
   width: 40px;
   height: 40px;
-  border: 3px solid #f3f3f3;
+  border: 3px solid #f5f5f5;
   border-top: 3px solid #5c6bc0;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
 
 .loader-text {
-  margin-top: 1rem;
-  color: #666;
+  margin-top: 1.25rem;
+  color: #777;
+  font-size: 0.95rem;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 // Error message
@@ -218,18 +253,20 @@
   align-items: center;
   background-color: #fff8f8;
   color: #d32f2f;
-  padding: 1rem;
-  border-radius: 8px;
+  padding: 1.25rem;
+  border-radius: 10px;
   border-left: 4px solid #d32f2f;
+  margin: 1rem 0;
 }
 
 .error-message svg {
-  margin-right: 0.75rem;
+  margin-right: 0.875rem;
   flex-shrink: 0;
 }
 
 .error-message p {
   margin: 0;
+  line-height: 1.5;
 }
 
 // Empty state
@@ -296,4 +333,24 @@
     font-size: 0.8rem;
     padding: 0.25rem 0.5rem;
   }
+}
+
+.card-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 60%,
+    rgba(0, 0, 0, 0.15) 100%
+  );
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.card:hover .card-overlay {
+  opacity: 1;
 }
