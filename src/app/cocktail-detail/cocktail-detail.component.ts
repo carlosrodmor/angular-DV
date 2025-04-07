@@ -19,6 +19,22 @@ export class CocktailDetailComponent implements OnInit {
   ingredients: Ingredient[] = [];
   showIngredientsModal: boolean = false;
 
+  // Variables para el cambio de idioma
+  currentLanguage: string = 'default';
+  availableLanguages = [
+    { code: 'default', name: 'Original', flag: '🌎' },
+    { code: 'ES', name: 'Español', flag: '🇪🇸' },
+    { code: 'DE', name: 'Alemán', flag: '🇩🇪' },
+    { code: 'FR', name: 'Francés', flag: '🇫🇷' },
+    { code: 'IT', name: 'Italiano', flag: '🇮🇹' },
+  ];
+
+  // Variables para el slider de categoría
+  categoryCocktails: Cocktail[] = [];
+  loadingCategory: boolean = false;
+  showCategorySlider: boolean = false;
+  currentSlideIndex: number = 0;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -105,5 +121,69 @@ export class CocktailDetailComponent implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/']);
+  }
+
+  // Métodos para el cambio de idioma
+  changeLanguage(langCode: string): void {
+    this.currentLanguage = langCode;
+  }
+
+  getInstructions(): string {
+    if (!this.cocktail) return '';
+
+    if (this.currentLanguage === 'default') {
+      return this.cocktail.strInstructions;
+    }
+
+    const instructionsKey =
+      `strInstructions${this.currentLanguage}` as keyof Cocktail;
+    const translatedInstructions = this.cocktail[instructionsKey] as
+      | string
+      | null;
+
+    return translatedInstructions || this.cocktail.strInstructions;
+  }
+
+  // Métodos para el slider de categoría
+  loadCategoryDrinks(): void {
+    if (!this.cocktail || !this.cocktail.strCategory) return;
+
+    this.loadingCategory = true;
+    this.cocktailService.filterByCategory(this.cocktail.strCategory).subscribe(
+      (response: any) => {
+        this.loadingCategory = false;
+        if (response && response.drinks && response.drinks.length > 0) {
+          this.categoryCocktails = response.drinks;
+          this.showCategorySlider = true;
+          this.currentSlideIndex = 0;
+        }
+      },
+      (error) => {
+        this.loadingCategory = false;
+        console.error('Error al cargar cócteles de la categoría:', error);
+      }
+    );
+  }
+
+  nextSlide(): void {
+    if (this.categoryCocktails.length === 0) return;
+    this.currentSlideIndex =
+      (this.currentSlideIndex + 1) % this.categoryCocktails.length;
+  }
+
+  prevSlide(): void {
+    if (this.categoryCocktails.length === 0) return;
+    this.currentSlideIndex =
+      (this.currentSlideIndex - 1 + this.categoryCocktails.length) %
+      this.categoryCocktails.length;
+  }
+
+  openCocktailDetails(id: string): void {
+    this.showCategorySlider = false;
+    this.router.navigate(['/cocktail', id]);
+  }
+
+  closeCategorySlider(): void {
+    this.showCategorySlider = false;
   }
 }

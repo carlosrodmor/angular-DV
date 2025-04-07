@@ -1,0 +1,206 @@
+// Estilos generales
+.cocktail-img {
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+// Estilos para la categoría clicable
+.category-badge {
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// Estilos para el selector de idioma
+.language-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  button {
+    width: 40px;
+    height: 40px;
+    line-height: 1;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.2s ease;
+    border-radius: 50%;
+    border: 1px solid #e9ecef;
+
+    &:hover {
+      transform: scale(1.1);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    &.btn-primary {
+      border-color: transparent;
+    }
+  }
+}
+
+// Estilos para el slider de categoría
+.category-slider-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.category-slider-container {
+  width: 90%;
+  max-width: 800px;
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+
+  .slider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #eee;
+
+    h3 {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+  }
+
+  .slider-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+
+    .slider-nav {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: #777;
+      cursor: pointer;
+      padding: 0.5rem;
+      transition: all 0.2s ease;
+
+      &:hover {
+        color: #333;
+      }
+
+      &:focus {
+        outline: none;
+      }
+    }
+
+    .slider-main {
+      flex: 1;
+      padding: 0 1rem;
+
+      .cocktail-slide {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+
+        &:hover {
+          transform: scale(1.02);
+        }
+
+        .slide-image {
+          width: 100%;
+          max-width: 300px;
+          height: 300px;
+          object-fit: cover;
+          border-radius: 4px;
+          margin-bottom: 1rem;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .slide-caption {
+          font-size: 1.1rem;
+          font-weight: 500;
+          text-align: center;
+          color: #333;
+        }
+      }
+    }
+  }
+
+  .slider-counter {
+    text-align: center;
+    padding: 0.5rem 1rem 1rem;
+    color: #777;
+    font-size: 0.9rem;
+  }
+}
+
+// Indicador de carga para la categoría
+.category-loader-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 1001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Animaciones
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+// Estilos para elementos clickeables
+.clickable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+// Mejoras para dispositivos móviles
+@media (max-width: 767.98px) {
+  .slider-content .slider-main .cocktail-slide .slide-image {
+    height: 250px;
+  }
+
+  .category-slider-container {
+    width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .language-selector {
+    button {
+      width: 36px;
+      height: 36px;
+      font-size: 1rem;
+    }
+  }
+}
