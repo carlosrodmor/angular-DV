@@ -15,7 +15,7 @@ export class SearchFiltersComponent implements OnInit {
   @Input() searchTerm: string = '';
   @Input() selectedCategory: string = '';
 
-  @Output() search = new EventEmitter<void>();
+  @Output() search = new EventEmitter<string>();
   @Output() categoryChange = new EventEmitter<string>();
   @Output() refresh = new EventEmitter<void>();
 
@@ -28,7 +28,7 @@ export class SearchFiltersComponent implements OnInit {
   }
 
   onSearch(): void {
-    this.search.emit();
+    this.search.emit(this.searchTerm);
   }
 
   onCategoryChange(): void {
@@ -36,9 +36,7 @@ export class SearchFiltersComponent implements OnInit {
   }
 
   onRefreshData(): void {
-    // Indicar al componente padre que debe refrescar los datos
     this.refresh.emit();
-    // Verificar el estado de la API
     this.checkApiStatus();
   }
 

@@ -72,12 +72,15 @@ export class HomeComponent implements OnInit, OnDestroy {
     // Cargar las categorías
     this.loadCategories();
 
-    // Verificar si hay un parámetro random en la URL
+    // Verificar si hay parámetros en la URL
     this.route.queryParams
       .pipe(takeUntil(this.destroy$))
       .subscribe((params) => {
         if (params['random']) {
           this.loadRandomCocktail();
+        } else if (params['search']) {
+          this.searchTerm = params['search'];
+          this.search();
         } else if (params['letter']) {
           this.filterLetter = params['letter'];
           this.filterByLetter(this.filterLetter);
@@ -264,7 +267,12 @@ export class HomeComponent implements OnInit, OnDestroy {
       });
   }
 
-  search(): void {
+  search(term?: string): void {
+    // Si se proporciona un término de búsqueda desde el componente hijo, actualizarlo
+    if (term !== undefined) {
+      this.searchTerm = term;
+    }
+
     if (!this.searchTerm.trim()) {
       this.filterByLetter(this.filterLetter);
       return;
@@ -272,6 +280,17 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     this.loading = true;
     this.error = '';
+
+    // Limpiar filtros anteriores
+    this.selectedCategoryFilter = '';
+    this.filterLetter = '';
+
+    // Actualizar la URL para reflejar la búsqueda
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { search: this.searchTerm },
+      replaceUrl: true,
+    });
 
     this.cocktailService
       .searchByName(this.searchTerm)
@@ -286,7 +305,7 @@ export class HomeComponent implements OnInit, OnDestroy {
             this.cocktails = [];
             this.alcoholicCount = 0;
             this.nonAlcoholicCount = 0;
-            this.error = 'No se encontraron cócteles';
+            this.error = `No se encontraron cócteles para: "${this.searchTerm}"`;
           }
         },
         error: (error) => {

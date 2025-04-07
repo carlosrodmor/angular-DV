@@ -1,13 +1,13 @@
 <div class="home-container">
   <div class="card mb-4">
     <!-- Cabecera -->
-    <app-home-header (refresh)="search()"></app-home-header>
+    <app-home-header (refresh)="refreshData()"></app-home-header>
 
     <div class="card-body">
       <!-- Filtros y búsqueda -->
       <app-search-filters [categories]="categories" [searchTerm]="searchTerm"
-        [selectedCategory]="selectedCategoryFilter" (search)="search()" (categoryChange)="filterByCategory($event)"
-        (refresh)="refreshData()">
+        [selectedCategory]="selectedCategoryFilter" (search)="search($event)"
+        (categoryChange)="filterByCategory($event)" (refresh)="refreshData()">
       </app-search-filters>
 
       <!-- Filtros por letra -->
@@ -23,7 +23,8 @@
       <!-- Tabla de resultados -->
       <app-cocktail-table *ngIf="cocktails.length > 0 && !loading" [cocktails]="cocktails"
         [alcoholicCount]="alcoholicCount" [nonAlcoholicCount]="nonAlcoholicCount"
-        (showIngredients)="showIngredients($event)" (showCategory)="showCategory($event)">
+        [isCategoryFiltered]="!!selectedCategoryFilter" (showIngredients)="showIngredients($event)"
+        (showCategory)="showCategory($event)">
       </app-cocktail-table>
 
       <!-- Estado vacío -->
