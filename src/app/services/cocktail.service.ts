@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, of } from 'rxjs';
-import { map, catchError, retry, delay, tap } from 'rxjs/operators';
+import { map, catchError, retry, tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -7,6 +7,8 @@ import { CocktailService } from '../services/cocktail.service';
 import { Cocktail, CocktailsResponse } from '../models/cocktail';
 import { IngredientsModalComponent } from '../shared/ingredients-modal/ingredients-modal.component';
 import { CategoryModalComponent } from '../shared/category-modal/category-modal.component';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -21,7 +23,7 @@ import { CategoryModalComponent } from '../shared/category-modal/category-modal.
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   cocktails: Cocktail[] = [];
   filterLetter: string = '';
   letters: string[] = 'abcdefghijklmnopqrstuvwxyz'.split('');
@@ -42,78 +44,95 @@ export class HomeComponent implements OnInit {
 
   searchTerm: string = '';
 
-  constructor(
-    private cocktailService: CocktailService,
-    private route: ActivatedRoute,
-    private router: Router
-  ) {}
+  private destroy$ = new Subject<void>();
+
+  private cocktailService = inject(CocktailService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   ngOnInit(): void {
     // Cargar las categorías
     this.loadCategories();
 
     // Verificar si hay un parámetro random en la URL
-    this.route.queryParams.subscribe((params) => {
-      if (params['random']) {
-        this.loadRandomCocktail();
-      } else if (params['letter']) {
-        this.filterLetter = params['letter'];
-        this.filterByLetter(this.filterLetter);
-      } else if (params['category']) {
-        this.selectedCategoryFilter = params['category'];
-        this.filterByCategory(this.selectedCategoryFilter);
-      } else {
-        // Por defecto cargamos la letra 'a'
-        this.filterLetter = 'a';
-        this.filterByLetter('a');
-      }
-    });
+    this.route.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((params) => {
+        if (params['random']) {
+          this.loadRandomCocktail();
+        } else if (params['letter']) {
+          this.filterLetter = params['letter'];
+          this.filterByLetter(this.filterLetter);
+        } else if (params['category']) {
+          this.selectedCategoryFilter = params['category'];
+          this.filterByCategory(this.selectedCategoryFilter);
+        } else {
+          // Por defecto cargamos la letra 'a'
+          this.filterLetter = 'a';
+          this.filterByLetter('a');
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   loadCategories(): void {
-    this.cocktailService.getCategories().subscribe(
-      (response: any) => {
-        if (response && response.drinks) {
-          this.categories = response.drinks.map((cat: any) => cat.strCategory);
-        }
-      },
-      (error) => {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Error al cargar categorías';
-        console.error('Error loading categories', error);
-        // Mostrar error en la interfaz
-        this.error = errorMessage;
-        // Intentar cargar desde una lista predefinida si hay error
-        this.categories = [
-          'Ordinary Drink',
-          'Cocktail',
-          'Milk / Float / Shake',
-          'Other/Unknown',
-          'Cocoa',
-          'Shot',
-          'Coffee / Tea',
-          'Homemade Liqueur',
-          'Punch / Party Drink',
-          'Beer',
-          'Soft Drink / Soda',
-        ];
-      }
-    );
+    this.cocktailService
+      .getCategories()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: any) => {
+          if (response && response.drinks) {
+            this.categories = response.drinks.map(
+              (cat: any) => cat.strCategory
+            );
+          }
+        },
+        error: (error) => {
+          const errorMessage =
+            error instanceof Error
+              ? error.message
+              : 'Error al cargar categorías';
+          console.error('Error loading categories', error);
+          // Mostrar error en la interfaz
+          this.error = errorMessage;
+          // Intentar cargar desde una lista predefinida si hay error
+          this.categories = [
+            'Ordinary Drink',
+            'Cocktail',
+            'Milk / Float / Shake',
+            'Other/Unknown',
+            'Cocoa',
+            'Shot',
+            'Coffee / Tea',
+            'Homemade Liqueur',
+            'Punch / Party Drink',
+            'Beer',
+            'Soft Drink / Soda',
+          ];
+        },
+      });
   }
 
   loadRandomCocktail(): void {
-    this.cocktailService.getRandom().subscribe(
-      (response: any) => {
-        if (response && response.drinks && response.drinks.length > 0) {
-          const randomCocktail = response.drinks[0];
-          this.router.navigate(['/cocktail', randomCocktail.idDrink]);
-        }
-      },
-      (error) => {
-        this.error = 'Error al cargar el cóctel aleatorio';
-        console.error(error);
-      }
-    );
+    this.cocktailService
+      .getRandom()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: any) => {
+          if (response && response.drinks && response.drinks.length > 0) {
+            const randomCocktail = response.drinks[0];
+            this.router.navigate(['/cocktail', randomCocktail.idDrink]);
+          }
+        },
+        error: (error) => {
+          this.error = 'Error al cargar el cóctel aleatorio';
+          console.error(error);
+        },
+      });
   }
 
   filterByLetter(letter: string): void {
@@ -128,34 +147,37 @@ export class HomeComponent implements OnInit {
       queryParamsHandling: 'merge',
     });
 
-    this.cocktailService.searchByFirstLetter(letter).subscribe(
-      (response: CocktailsResponse) => {
-        this.loading = false;
-        if (response && response.drinks) {
-          this.cocktails = response.drinks;
-          this.updateAlcoholicCount();
-        } else {
+    this.cocktailService
+      .searchByFirstLetter(letter)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: CocktailsResponse) => {
+          this.loading = false;
+          if (response && response.drinks) {
+            this.cocktails = response.drinks;
+            this.updateAlcoholicCount();
+          } else {
+            this.cocktails = [];
+            this.alcoholicCount = 0;
+            this.nonAlcoholicCount = 0;
+            this.error = `No se encontraron cócteles que comiencen con la letra "${letter}"`;
+          }
+        },
+        error: (error) => {
+          this.loading = false;
           this.cocktails = [];
           this.alcoholicCount = 0;
           this.nonAlcoholicCount = 0;
-          this.error = `No se encontraron cócteles que comiencen con la letra "${letter}"`;
-        }
-      },
-      (error) => {
-        this.loading = false;
-        this.cocktails = [];
-        this.alcoholicCount = 0;
-        this.nonAlcoholicCount = 0;
 
-        if (error instanceof Error) {
-          this.error = error.message;
-        } else {
-          this.error = 'Error al cargar los cócteles';
-        }
+          if (error instanceof Error) {
+            this.error = error.message;
+          } else {
+            this.error = 'Error al cargar los cócteles';
+          }
 
-        console.error('Error al filtrar por letra:', error);
-      }
-    );
+          console.error('Error al filtrar por letra:', error);
+        },
+      });
   }
 
   filterByCategory(category: string): void {
@@ -177,47 +199,50 @@ export class HomeComponent implements OnInit {
       replaceUrl: true,
     });
 
-    this.cocktailService.filterByCategory(category).subscribe(
-      (response: CocktailsResponse) => {
-        this.loading = false;
-        if (response && response.drinks) {
-          // Limitamos a 10 cócteles para evitar muchas peticiones
-          const cocktailsToFetch = response.drinks.slice(0, 10);
-          this.cocktails = cocktailsToFetch;
+    this.cocktailService
+      .filterByCategory(category)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: CocktailsResponse) => {
+          this.loading = false;
+          if (response && response.drinks) {
+            // Limitamos a 10 cócteles para evitar muchas peticiones
+            const cocktailsToFetch = response.drinks.slice(0, 10);
+            this.cocktails = cocktailsToFetch;
 
-          // Pre-poblamos datos esenciales para mejorar la experiencia de usuario
-          this.cocktails.forEach((cocktail) => {
-            // Aseguramos que todos los cócteles tengan su categoría correcta
-            cocktail.strCategory = category;
-            // Preseleccionar valores por defecto para evitar errores visuales
-            if (!cocktail.strAlcoholic) {
-              cocktail.strAlcoholic = 'Alcoholic'; // Valor por defecto
-            }
-          });
+            // Pre-poblamos datos esenciales para mejorar la experiencia de usuario
+            this.cocktails.forEach((cocktail) => {
+              // Aseguramos que todos los cócteles tengan su categoría correcta
+              cocktail.strCategory = category;
+              // Preseleccionar valores por defecto para evitar errores visuales
+              if (!cocktail.strAlcoholic) {
+                cocktail.strAlcoholic = 'Alcoholic'; // Valor por defecto
+              }
+            });
 
-          this.updateAlcoholicCount();
-        } else {
+            this.updateAlcoholicCount();
+          } else {
+            this.cocktails = [];
+            this.alcoholicCount = 0;
+            this.nonAlcoholicCount = 0;
+            this.error = `No se encontraron cócteles en la categoría "${category}"`;
+          }
+        },
+        error: (error) => {
+          this.loading = false;
           this.cocktails = [];
           this.alcoholicCount = 0;
           this.nonAlcoholicCount = 0;
-          this.error = `No se encontraron cócteles en la categoría "${category}"`;
-        }
-      },
-      (error) => {
-        this.loading = false;
-        this.cocktails = [];
-        this.alcoholicCount = 0;
-        this.nonAlcoholicCount = 0;
 
-        if (error instanceof Error) {
-          this.error = error.message;
-        } else {
-          this.error = 'Error al filtrar por categoría';
-        }
+          if (error instanceof Error) {
+            this.error = error.message;
+          } else {
+            this.error = 'Error al filtrar por categoría';
+          }
 
-        console.error('Error al filtrar por categoría:', error);
-      }
-    );
+          console.error('Error al filtrar por categoría:', error);
+        },
+      });
   }
 
   search(): void {
@@ -229,28 +254,31 @@ export class HomeComponent implements OnInit {
     this.loading = true;
     this.error = '';
 
-    this.cocktailService.searchByName(this.searchTerm).subscribe(
-      (response: CocktailsResponse) => {
-        this.loading = false;
-        if (response && response.drinks) {
-          this.cocktails = response.drinks;
-          this.updateAlcoholicCount();
-        } else {
+    this.cocktailService
+      .searchByName(this.searchTerm)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: CocktailsResponse) => {
+          this.loading = false;
+          if (response && response.drinks) {
+            this.cocktails = response.drinks;
+            this.updateAlcoholicCount();
+          } else {
+            this.cocktails = [];
+            this.alcoholicCount = 0;
+            this.nonAlcoholicCount = 0;
+            this.error = 'No se encontraron cócteles';
+          }
+        },
+        error: (error) => {
+          this.loading = false;
+          this.error = 'Error en la búsqueda';
+          console.error(error);
           this.cocktails = [];
           this.alcoholicCount = 0;
           this.nonAlcoholicCount = 0;
-          this.error = 'No se encontraron cócteles';
-        }
-      },
-      (error) => {
-        this.loading = false;
-        this.error = 'Error en la búsqueda';
-        console.error(error);
-        this.cocktails = [];
-        this.alcoholicCount = 0;
-        this.nonAlcoholicCount = 0;
-      }
-    );
+        },
+      });
   }
 
   updateAlcoholicCount(): void {
