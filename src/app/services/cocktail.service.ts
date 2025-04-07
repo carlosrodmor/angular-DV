@@ -15,8 +15,17 @@ export class CocktailService {
   constructor(private http: HttpClient) {}
 
   // Método para obtener datos con caché
-  private getWithCache<T>(url: string): Observable<T> {
+  private getWithCache<T>(
+    url: string,
+    forceRefresh: boolean = false
+  ): Observable<T> {
     const now = Date.now();
+
+    // Si se solicita forzar refresco, eliminar la entrada de caché
+    if (forceRefresh) {
+      this.cache.delete(url);
+      this.cacheExpiration.delete(url);
+    }
 
     // Verificar si tenemos una versión en caché válida
     if (this.cache.has(url) && this.cacheExpiration.get(url)! > now) {
@@ -28,9 +37,18 @@ export class CocktailService {
     return this.http.get<T>(url).pipe(
       retry({ count: 2, delay: this.retryStrategy }),
       tap((response) => {
-        // Guardar en caché
-        this.cache.set(url, response);
-        this.cacheExpiration.set(url, now + this.cacheDuration);
+        // Verificar que la respuesta no esté vacía antes de cachear
+        if (
+          response &&
+          (response as any).drinks &&
+          (response as any).drinks.length > 0
+        ) {
+          // Guardar en caché
+          this.cache.set(url, response);
+          this.cacheExpiration.set(url, now + this.cacheDuration);
+        } else {
+          console.log(`No se guardó en caché respuesta vacía para: ${url}`);
+        }
       }),
       catchError((error) => this.handleError(error, url))
     );
@@ -74,18 +92,27 @@ export class CocktailService {
   }
 
   // Búsqueda de cóctel por nombre
-  searchByName(name: string): Observable<any> {
-    return this.getWithCache(`${this.apiUrl}/search.php?s=${name}`);
+  searchByName(name: string, forceRefresh: boolean = false): Observable<any> {
+    return this.getWithCache(
+      `${this.apiUrl}/search.php?s=${name}`,
+      forceRefresh
+    );
   }
 
   // Listar todos los cócteles por primera letra
-  searchByFirstLetter(letter: string): Observable<any> {
-    return this.getWithCache(`${this.apiUrl}/search.php?f=${letter}`);
+  searchByFirstLetter(
+    letter: string,
+    forceRefresh: boolean = false
+  ): Observable<any> {
+    return this.getWithCache(
+      `${this.apiUrl}/search.php?f=${letter}`,
+      forceRefresh
+    );
   }
 
   // Búsqueda de cóctel por ID
-  getById(id: string): Observable<any> {
-    return this.getWithCache(`${this.apiUrl}/lookup.php?i=${id}`);
+  getById(id: string, forceRefresh: boolean = false): Observable<any> {
+    return this.getWithCache(`${this.apiUrl}/lookup.php?i=${id}`, forceRefresh);
   }
 
   // Cóctel aleatorio
@@ -97,33 +124,51 @@ export class CocktailService {
   }
 
   // Filtrar por ingrediente
-  filterByIngredient(ingredient: string): Observable<any> {
-    return this.getWithCache(`${this.apiUrl}/filter.php?i=${ingredient}`);
+  filterByIngredient(
+    ingredient: string,
+    forceRefresh: boolean = false
+  ): Observable<any> {
+    return this.getWithCache(
+      `${this.apiUrl}/filter.php?i=${ingredient}`,
+      forceRefresh
+    );
   }
 
   // Filtrar por alcohólico o no
-  filterByAlcoholic(alcoholic: string): Observable<any> {
-    return this.getWithCache(`${this.apiUrl}/filter.php?a=${alcoholic}`);
+  filterByAlcoholic(
+    alcoholic: string,
+    forceRefresh: boolean = false
+  ): Observable<any> {
+    return this.getWithCache(
+      `${this.apiUrl}/filter.php?a=${alcoholic}`,
+      forceRefresh
+    );
   }
 
   // Filtrar por categoría
-  filterByCategory(category: string): Observable<any> {
-    return this.getWithCache(`${this.apiUrl}/filter.php?c=${category}`);
+  filterByCategory(
+    category: string,
+    forceRefresh: boolean = false
+  ): Observable<any> {
+    return this.getWithCache(
+      `${this.apiUrl}/filter.php?c=${category}`,
+      forceRefresh
+    );
   }
 
   // Listar categorías
-  getCategories(): Observable<any> {
-    return this.getWithCache(`${this.apiUrl}/list.php?c=list`);
+  getCategories(forceRefresh: boolean = false): Observable<any> {
+    return this.getWithCache(`${this.apiUrl}/list.php?c=list`, forceRefresh);
   }
 
   // Listar ingredientes
-  getIngredients(): Observable<any> {
-    return this.getWithCache(`${this.apiUrl}/list.php?i=list`);
+  getIngredients(forceRefresh: boolean = false): Observable<any> {
+    return this.getWithCache(`${this.apiUrl}/list.php?i=list`, forceRefresh);
   }
 
   // Listar tipos (alcohólico o no)
-  getAlcoholicFilter(): Observable<any> {
-    return this.getWithCache(`${this.apiUrl}/list.php?a=list`);
+  getAlcoholicFilter(forceRefresh: boolean = false): Observable<any> {
+    return this.getWithCache(`${this.apiUrl}/list.php?a=list`, forceRefresh);
   }
 
   // Obtener URL de imagen de ingrediente
@@ -136,5 +181,27 @@ export class CocktailService {
     this.cache.clear();
     this.cacheExpiration.clear();
     console.log('Caché limpiada');
+  }
+
+  // Limpiar caché específica para una categoría
+  clearCategoryCache(category: string): void {
+    const url = `${this.apiUrl}/filter.php?c=${category}`;
+    this.cache.delete(url);
+    this.cacheExpiration.delete(url);
+    console.log(`Caché limpiada para categoría: ${category}`);
+  }
+
+  // Verificar estado de la API
+  checkApiStatus(): Observable<boolean> {
+    // Intentamos obtener la lista de categorías como una verificación simple
+    return this.http.get<any>(`${this.apiUrl}/list.php?c=list`).pipe(
+      map((response) => {
+        return !!(response && response.drinks && response.drinks.length > 0);
+      }),
+      catchError(() => {
+        console.error('La API no está respondiendo correctamente');
+        return of(false);
+      })
+    );
   }
 }

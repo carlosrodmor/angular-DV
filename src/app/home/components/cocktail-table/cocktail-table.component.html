@@ -1,26 +1,28 @@
 <div class="search-results">
     <div class="table-responsive">
-        <table class="table">
+        <table class="table cocktail-table">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Imagen</th>
+                    <th class="id-column">ID</th>
+                    <th class="image-column">Imagen</th>
                     <th>Nombre</th>
                     <th>Categoría</th>
                     <th>Tipo</th>
                     <th>Ingredientes</th>
+                    @if (!isCategoryFiltered) {
                     <th>Modificado</th>
+                    }
                 </tr>
             </thead>
             <tbody>
                 @for (cocktail of cocktails; track cocktail.idDrink) {
                 <tr>
-                    <td>
-                        <a [routerLink]="['/cocktail', cocktail.idDrink]" class="badge bg-light text-dark">
+                    <td class="id-column">
+                        <a [routerLink]="['/cocktail', cocktail.idDrink]" class="badge bg-soft text-dark">
                             {{ cocktail.idDrink }}
                         </a>
                     </td>
-                    <td>
+                    <td class="image-column">
                         <img [src]="
                 cocktail.strDrinkThumb ||
                 '/assets/images/cocktail-placeholder.svg'
@@ -47,7 +49,7 @@
                         </span>
                     </td>
                     <td>
-                        <button class="btn btn-sm btn-outline-primary" (click)="onIngredientsClick(cocktail)">
+                        <button class="ingredients-btn" (click)="onIngredientsClick(cocktail)">
                             {{
                             countIngredients(cocktail) > 0
                             ? countIngredients(cocktail) + ' ingredientes'
@@ -55,6 +57,7 @@
                             }}
                         </button>
                     </td>
+                    @if (!isCategoryFiltered) {
                     <td>
                         {{
                         cocktail.dateModified
@@ -62,6 +65,7 @@
                         : 'N/A'
                         }}
                     </td>
+                    }
                 </tr>
                 }
             </tbody>

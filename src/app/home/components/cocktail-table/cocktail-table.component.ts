@@ -14,6 +14,7 @@ export class CocktailTableComponent {
   @Input() cocktails: Cocktail[] = [];
   @Input() alcoholicCount: number = 0;
   @Input() nonAlcoholicCount: number = 0;
+  @Input() isCategoryFiltered: boolean = false;
 
   @Output() showIngredients = new EventEmitter<Cocktail>();
   @Output() showCategory = new EventEmitter<string>();

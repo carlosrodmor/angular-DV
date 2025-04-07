@@ -72,12 +72,15 @@ export class HomeComponent implements OnInit, OnDestroy {
     // Cargar las categorías
     this.loadCategories();
 
-    // Verificar si hay un parámetro random en la URL
+    // Verificar si hay parámetros en la URL
     this.route.queryParams
       .pipe(takeUntil(this.destroy$))
       .subscribe((params) => {
         if (params['random']) {
           this.loadRandomCocktail();
+        } else if (params['search']) {
+          this.searchTerm = params['search'];
+          this.search();
         } else if (params['letter']) {
           this.filterLetter = params['letter'];
           this.filterByLetter(this.filterLetter);
@@ -157,12 +160,14 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.error = '';
     this.filterLetter = letter;
+    // Limpiar el filtro de categoría cuando se selecciona una letra
+    this.selectedCategoryFilter = '';
 
-    // Actualizar la URL sin recargar la página
+    // Actualizar la URL sin recargar la página - solo mantener parámetro de letra
     this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { letter: letter },
-      queryParamsHandling: 'merge',
+      queryParams: { letter: letter }, // Solo mantener el parámetro de letra
+      replaceUrl: true,
     });
 
     this.cocktailService
@@ -209,11 +214,10 @@ export class HomeComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Actualizar la URL sin recargar la página
+    // Actualizar la URL sin recargar la página - evitar mezclar parámetros
     this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { category: category },
-      queryParamsHandling: 'merge',
+      queryParams: { category: category }, // Solo mantener el parámetro de categoría
       replaceUrl: true,
     });
 
@@ -263,7 +267,12 @@ export class HomeComponent implements OnInit, OnDestroy {
       });
   }
 
-  search(): void {
+  search(term?: string): void {
+    // Si se proporciona un término de búsqueda desde el componente hijo, actualizarlo
+    if (term !== undefined) {
+      this.searchTerm = term;
+    }
+
     if (!this.searchTerm.trim()) {
       this.filterByLetter(this.filterLetter);
       return;
@@ -271,6 +280,17 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     this.loading = true;
     this.error = '';
+
+    // Limpiar filtros anteriores
+    this.selectedCategoryFilter = '';
+    this.filterLetter = '';
+
+    // Actualizar la URL para reflejar la búsqueda
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { search: this.searchTerm },
+      replaceUrl: true,
+    });
 
     this.cocktailService
       .searchByName(this.searchTerm)
@@ -285,7 +305,7 @@ export class HomeComponent implements OnInit, OnDestroy {
             this.cocktails = [];
             this.alcoholicCount = 0;
             this.nonAlcoholicCount = 0;
-            this.error = 'No se encontraron cócteles';
+            this.error = `No se encontraron cócteles para: "${this.searchTerm}"`;
           }
         },
         error: (error) => {
@@ -431,5 +451,81 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   closeCategoryModal(): void {
     this.showCategoryModal = false;
+  }
+
+  /**
+   * Refresca los datos actuales forzando una solicitud a la API
+   * Útil cuando el filtro de categorías no funciona correctamente
+   */
+  refreshData(): void {
+    this.error = '';
+    this.loading = true;
+
+    // Mostrar un mensaje temporal
+    const tempMessage = 'Actualizando datos...';
+    this.error = tempMessage;
+
+    // Limpiar caché
+    this.cocktailService.clearCache();
+
+    setTimeout(() => {
+      // Si hay una categoría seleccionada, actualizar esa categoría
+      if (this.selectedCategoryFilter) {
+        this.cocktailService
+          .filterByCategory(this.selectedCategoryFilter, true) // Forzar refresco
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: (response: CocktailsResponse) => {
+              this.loading = false;
+              // Limpiar el mensaje temporal solo si no ha cambiado
+              if (this.error === tempMessage) {
+                this.error = '';
+              }
+
+              if (response && response.drinks) {
+                // Limitamos a 10 cócteles para evitar muchas peticiones
+                const cocktailsToFetch = response.drinks.slice(0, 10);
+                this.cocktails = cocktailsToFetch;
+
+                // Pre-poblamos datos esenciales
+                this.cocktails.forEach((cocktail) => {
+                  cocktail.strCategory = this.selectedCategoryFilter;
+                  if (!cocktail.strAlcoholic) {
+                    cocktail.strAlcoholic = 'Alcoholic';
+                  }
+                });
+
+                this.updateAlcoholicCount();
+              } else {
+                this.cocktails = [];
+                this.alcoholicCount = 0;
+                this.nonAlcoholicCount = 0;
+                this.error = `No se encontraron cócteles en la categoría "${this.selectedCategoryFilter}"`;
+              }
+            },
+            error: (error) => {
+              this.loading = false;
+              this.cocktails = [];
+              this.alcoholicCount = 0;
+              this.nonAlcoholicCount = 0;
+
+              if (error instanceof Error) {
+                this.error = error.message;
+              } else {
+                this.error = 'Error al refrescar los datos';
+              }
+
+              console.error('Error al refrescar datos:', error);
+            },
+          });
+      } else if (this.filterLetter) {
+        // Si no hay categoría, pero hay una letra seleccionada, refrescar por letra
+        this.filterByLetter(this.filterLetter);
+      } else {
+        // Si no hay categoría ni letra, cargar por defecto
+        this.filterLetter = 'a';
+        this.filterByLetter('a');
+      }
+    }, 500); // Pequeño retraso para mostrar el mensaje
   }
 }
