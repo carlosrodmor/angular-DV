@@ -1,0 +1,23 @@
+<div class="search-filters">
+    <div class="search-box">
+        <div class="input-group">
+            <input type="text" class="form-control" placeholder="Buscar cócteles..." [(ngModel)]="searchTerm"
+                (keyup.enter)="onSearch()" />
+            <button class="btn btn-primary" type="button" (click)="onSearch()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.3-4.3"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+    <div class="category-filter">
+        <select class="form-select" [(ngModel)]="selectedCategory" (change)="onCategoryChange()">
+            <option value="">Todas las categorías</option>
+            @for (category of categories; track category) {
+            <option [value]="category">{{ category }}</option>
+            }
+        </select>
+    </div>
+</div>

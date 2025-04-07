@@ -1,0 +1,40 @@
+<ng-container *ngIf="show && cocktails.length > 0">
+    <div class="category-slider-overlay">
+        <div class="category-slider-container">
+            <div class="slider-header">
+                <h3>Cócteles de {{ category }}</h3>
+                <button class="btn-close" (click)="onClose()"></button>
+            </div>
+
+            <div class="slider-content">
+                <button class="slider-nav prev" (click)="prevSlide()">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+
+                <div class="slider-main">
+                    <div class="cocktail-slide" (click)="onSelectCocktail()">
+                        <img [src]="cocktails[currentIndex].strDrinkThumb" [alt]="cocktails[currentIndex].strDrink"
+                            class="slide-image">
+                        <div class="slide-caption">
+                            {{ cocktails[currentIndex].strDrink }}
+                        </div>
+                    </div>
+                </div>
+
+                <button class="slider-nav next" (click)="nextSlide()">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+
+            <div class="slider-counter">
+                {{ currentIndex + 1 }} / {{ cocktails.length }}
+            </div>
+        </div>
+    </div>
+</ng-container>
+
+<div class="category-loader-overlay" *ngIf="loading">
+    <div class="spinner-border text-light" role="status">
+        <span class="visually-hidden">Cargando cócteles de categoría...</span>
+    </div>
+</div>

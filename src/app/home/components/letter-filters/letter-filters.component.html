@@ -1,0 +1,8 @@
+<div class="letter-filters">
+    @for (letter of letters; track letter) {
+    <button type="button" class="btn btn-sm" [class.btn-primary]="selectedLetter === letter"
+        [class.btn-outline-primary]="selectedLetter !== letter" (click)="onLetterSelect(letter)">
+        {{ letter.toUpperCase() }}
+    </button>
+    }
+</div>

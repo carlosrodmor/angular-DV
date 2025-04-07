@@ -1,0 +1,17 @@
+<div class="card mb-4 border-0 shadow-sm" *ngIf="cocktail">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <h3 class="mb-0 h5">Instrucciones</h3>
+        <div class="language-selector">
+            <ng-container *ngFor="let lang of availableLanguages">
+                <button class="btn" [class.btn-primary]="currentLanguage === lang.code"
+                    [class.btn-light]="currentLanguage !== lang.code" (click)="changeLanguage(lang.code)"
+                    title="{{ lang.name }}">
+                    {{ lang.flag }}
+                </button>
+            </ng-container>
+        </div>
+    </div>
+    <div class="card-body">
+        <p class="mb-0">{{ instructions }}</p>
+    </div>
+</div>

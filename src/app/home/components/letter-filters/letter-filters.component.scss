@@ -1,0 +1,76 @@
+.letter-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.2rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+.letter-filters::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 30%;
+  height: 2px;
+  background: var(--primary-gradient, linear-gradient(45deg, #6366f1, #8b5cf6));
+  border-radius: 2px;
+}
+
+.btn-sm {
+  width: 2.4rem;
+  height: 2.4rem;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius, 0.5rem);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  font-weight: 600;
+  position: relative;
+  z-index: 1;
+  border: none;
+}
+
+.btn-sm::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(99, 102, 241, 0.05);
+  border-radius: var(--border-radius, 0.5rem);
+  z-index: -1;
+  transition: all 0.3s ease;
+  transform: scale(0.9);
+  opacity: 0;
+}
+
+.btn-sm:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}
+
+.btn-sm:hover::before {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.btn-primary {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+@media (max-width: 576px) {
+  .letter-filters {
+    gap: 0.2rem;
+  }
+
+  .btn-sm {
+    min-width: 1.8rem;
+    font-size: 0.7rem;
+  }
+}
