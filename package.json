@@ -11,15 +11,15 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "^19.1.0",
-    "@angular/common": "^19.1.0",
-    "@angular/compiler": "^19.1.0",
-    "@angular/core": "^19.1.0",
-    "@angular/forms": "^19.1.0",
-    "@angular/platform-browser": "^19.1.0",
-    "@angular/platform-browser-dynamic": "^19.1.0",
-    "@angular/platform-server": "^19.1.0",
-    "@angular/router": "^19.1.0",
+    "@angular/animations": "^19.2.20",
+    "@angular/common": "^19.2.20",
+    "@angular/compiler": "^19.2.20",
+    "@angular/core": "^19.2.20",
+    "@angular/forms": "^19.2.20",
+    "@angular/platform-browser": "^19.2.20",
+    "@angular/platform-browser-dynamic": "^19.2.20",
+    "@angular/platform-server": "^19.2.20",
+    "@angular/router": "^19.2.20",
     "@angular/ssr": "^19.1.2",
     "@netlify/angular-runtime": "^2.3.1",
     "bootstrap": "^5.3.5",
@@ -31,7 +31,7 @@
   "devDependencies": {
     "@angular-devkit/build-angular": "^19.1.2",
     "@angular/cli": "^19.1.2",
-    "@angular/compiler-cli": "^19.1.0",
+    "@angular/compiler-cli": "^19.2.20",
     "@types/express": "^4.17.17",
     "@types/jasmine": "~5.1.0",
     "@types/node": "^18.18.0",
@@ -42,5 +42,10 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
     "typescript": "~5.7.2"
+  },
+  "overrides": {
+    "vite": "6.4.2",
+    "serialize-javascript": "7.0.5",
+    "tar": "7.5.13"
   }
 }
